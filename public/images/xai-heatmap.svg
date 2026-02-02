@@ -1,0 +1,27 @@
+<svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B1120"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <radialGradient id="hot" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#F97316" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#FACC15" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1E293B" stop-opacity="0.2"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <rect x="120" y="80" width="560" height="360" rx="24" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+  <circle cx="400" cy="260" r="150" fill="url(#hot)"/>
+  <circle cx="470" cy="220" r="40" fill="#FDE047" opacity="0.9"/>
+  <circle cx="340" cy="300" r="30" fill="#FB7185" opacity="0.85"/>
+  <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
+    <path d="M120 440 H680"/>
+    <path d="M200 440 V460"/>
+    <path d="M400 440 V460"/>
+    <path d="M600 440 V460"/>
+  </g>
+  <g fill="#E5E7EB" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">
+    <text x="400" y="485">Activation Map</text>
+  </g>
+</svg>

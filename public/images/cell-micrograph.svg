@@ -1,0 +1,27 @@
+<svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="cell" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F472B6" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <g opacity="0.85">
+    <circle cx="220" cy="190" r="70" fill="url(#cell)"/>
+    <circle cx="250" cy="210" r="18" fill="#F9A8D4"/>
+    <circle cx="520" cy="140" r="85" fill="url(#cell)"/>
+    <circle cx="545" cy="170" r="20" fill="#F9A8D4"/>
+    <circle cx="510" cy="360" r="95" fill="url(#cell)"/>
+    <circle cx="535" cy="385" r="22" fill="#F9A8D4"/>
+    <circle cx="190" cy="360" r="60" fill="url(#cell)"/>
+    <circle cx="210" cy="380" r="14" fill="#F9A8D4"/>
+  </g>
+  <g stroke="#38BDF8" stroke-opacity="0.35" fill="none">
+    <path d="M40 80 C180 40, 260 60, 340 120"/>
+    <path d="M420 420 C520 380, 640 360, 760 420"/>
+  </g>
+</svg>

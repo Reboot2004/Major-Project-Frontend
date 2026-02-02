@@ -29,7 +29,11 @@ export default function AboutPage() {
                     transition={{ delay: 0.3 }}
                     className="card space-y-4"
                 >
-                    <div className="text-4xl">🎯</div>
+                    <div className="text-[var(--color-accent)]">
+                        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
                     <h2 className="text-2xl font-bold">Our Mission</h2>
                     <p className="text-muted leading-relaxed">
                         To democratize access to advanced cervical cancer screening by leveraging state-of-the-art AI technology. We believe every woman deserves accurate, timely, and explainable diagnostic tools—regardless of geographic or economic barriers.
@@ -42,7 +46,11 @@ export default function AboutPage() {
                     transition={{ delay: 0.4 }}
                     className="card space-y-4"
                 >
-                    <div className="text-4xl">🔮</div>
+                    <div className="text-[var(--color-accent)]">
+                        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
                     <h2 className="text-2xl font-bold">Our Vision</h2>
                     <p className="text-muted leading-relaxed">
                         A future where cervical cancer is detected at the earliest stages through AI-powered screening, dramatically reducing mortality rates and improving women's health outcomes globally. We envision AI as a trusted partner in medical diagnosis.
@@ -81,38 +89,6 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            <section className="space-y-6">
-                <motion.h2
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1 }}
-                    className="text-2xl md:text-3xl font-bold text-center"
-                >
-                    Impact Timeline
-                </motion.h2>
-                <div className="space-y-4 max-w-3xl mx-auto">
-                    {[
-                        { year: "2024", title: "Research & Development", desc: "Developed hybrid ConvNeXt + U-Net architecture with explainable AI integration" },
-                        { year: "2025", title: "Clinical Validation", desc: "Achieved 98.5% F1 score on SIPaKMeD dataset; initiated clinical validation studies" },
-                        { year: "2026", title: "Pilot Programs", desc: "Deploying in underserved communities to validate real-world effectiveness" },
-                        { year: "2027+", title: "Global Scale", desc: "Expanding access to millions of women through partnerships with healthcare providers" }
-                    ].map((item, i) => (
-                        <motion.div
-                            key={item.year}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 1.1 + i * 0.1 }}
-                            className="card flex gap-6 items-start"
-                        >
-                            <div className="text-2xl font-bold text-[var(--color-accent)] min-w-[80px]">{item.year}</div>
-                            <div className="space-y-2">
-                                <h3 className="font-semibold text-lg">{item.title}</h3>
-                                <p className="text-sm text-muted">{item.desc}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
 
             <section className="card space-y-4 bg-[var(--color-accent)]/5 border-[var(--color-accent)]/20">
                 <h2 className="text-2xl font-bold">Why This Matters</h2>

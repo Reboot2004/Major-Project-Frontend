@@ -4,16 +4,19 @@
 
 /* Design Tokens */
 :root {
-    --theme-hue: 210;
+    --theme-hue: 350;
     --theme-mode: dark;
-    --color-bg: hsl(var(--theme-hue), 30%, 8%);
-    --color-bg-alt: hsl(var(--theme-hue), 25%, 12%);
-    --color-fg: hsl(var(--theme-hue), 20%, 92%);
-    --color-fg-muted: hsl(var(--theme-hue), 15%, 65%);
-    --color-border: hsl(var(--theme-hue), 20%, 20%);
-    --color-accent: hsl(var(--theme-hue), 70%, 55%);
-    --color-accent-hover: hsl(var(--theme-hue), 80%, 48%);
-    --color-danger: hsl(0, 70%, 55%);
+    --color-bg: hsl(var(--theme-hue), 20%, 7%);
+    --color-bg-alt: hsl(var(--theme-hue), 22%, 12%);
+    --color-fg: hsl(var(--theme-hue), 15%, 96%);
+    --color-fg-muted: hsl(var(--theme-hue), 10%, 65%);
+    --color-border: hsl(var(--theme-hue), 28%, 26%);
+    --color-accent: hsl(var(--theme-hue), 80%, 55%);
+    --color-accent-hover: hsl(var(--theme-hue), 82%, 50%);
+    --color-danger: hsl(var(--theme-hue), 78%, 50%);
+    --grid-color: hsl(var(--theme-hue) 20% 55% / 0);
+    --grid-color-strong: hsl(var(--theme-hue) 20% 70% / 0);
+    --noise-opacity: 0;
     --shadow-sm: 0 1px 2px 0 hsl(var(--theme-hue) 20% 5% / 0.3);
     --shadow-md: 0 4px 12px -2px hsl(var(--theme-hue) 20% 5% / 0.4);
     --shadow-glow: 0 0 40px hsl(var(--theme-hue) 70% 55% / 0.15);
@@ -25,16 +28,19 @@
 
 [data-theme="light"] {
     --theme-mode: light;
-    --color-bg: hsl(var(--theme-hue), 30%, 98%);
-    --color-bg-alt: hsl(var(--theme-hue), 25%, 100%);
-    --color-fg: hsl(var(--theme-hue), 30%, 12%);
-    --color-fg-muted: hsl(var(--theme-hue), 15%, 45%);
-    --color-border: hsl(var(--theme-hue), 20%, 88%);
-    --color-accent: hsl(var(--theme-hue), 70%, 50%);
-    --color-accent-hover: hsl(var(--theme-hue), 80%, 42%);
+    --color-bg: hsl(var(--theme-hue), 20%, 96%);
+    --color-bg-alt: hsl(var(--theme-hue), 18%, 90%);
+    --color-fg: hsl(var(--theme-hue), 22%, 14%);
+    --color-fg-muted: hsl(var(--theme-hue), 12%, 48%);
+    --color-border: hsl(var(--theme-hue), 25%, 72%);
+    --color-accent: hsl(var(--theme-hue), 78%, 50%);
+    --color-accent-hover: hsl(var(--theme-hue), 82%, 46%);
     --shadow-sm: 0 1px 3px 0 hsl(var(--theme-hue) 20% 50% / 0.1);
     --shadow-md: 0 8px 16px -4px hsl(var(--theme-hue) 20% 50% / 0.15);
     --shadow-glow: 0 0 40px hsl(var(--theme-hue) 70% 55% / 0.2);
+    --grid-color: hsl(var(--theme-hue) 20% 20% / 0);
+    --grid-color-strong: hsl(var(--theme-hue) 20% 30% / 0);
+    --noise-opacity: 0;
 }
 
 html,
@@ -74,49 +80,27 @@ h3 {
     font-size: clamp(1.25rem, 3vw, 1.75rem);
 }
 
-p {
-    line-height: 1.7;
-}
-
 body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -2;
-    background:
-        radial-gradient(circle at 20% 30%, hsl(var(--theme-hue), 70%, 25%) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, hsl(calc(var(--theme-hue) + 60), 60%, 30%) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, hsl(calc(var(--theme-hue) - 30), 50%, 20%) 0%, transparent 70%),
-        var(--color-bg);
-    animation: gradientShift 20s ease-in-out infinite;
-    transition: background 1s ease;
+    /* Simple, static overall gradient */
+    background: radial-gradient(circle at top left, hsl(var(--theme-hue) 45% 16% / 0.9), hsl(var(--theme-hue) 25% 7% / 1));
 }
 
 [data-theme="light"] body::before {
-    background:
-        radial-gradient(circle at 20% 30%, hsl(var(--theme-hue), 60%, 90%) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, hsl(calc(var(--theme-hue) + 60), 50%, 88%) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, hsl(calc(var(--theme-hue) - 30), 40%, 92%) 0%, transparent 70%),
-        var(--color-bg);
+    background: radial-gradient(circle at top left, hsl(var(--theme-hue) 55% 92% / 0.9), hsl(var(--theme-hue) 20% 93% / 1));
 }
 
 body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-image:
-        radial-gradient(circle at 25% 25%, hsl(var(--theme-hue) 70% 60% / 0.05) 1px, transparent 1px),
-        radial-gradient(circle at 75% 75%, hsl(var(--theme-hue) 70% 60% / 0.03) 1px, transparent 1px);
-    background-size: 50px 50px, 80px 80px;
-    animation: meshFloat 40s linear infinite;
+    content: none;
 }
 
 .orb {
     position: fixed;
-    border-radius: 50%;
     filter: blur(80px);
-    opacity: 0.4;
+    opacity: 0.25;
     z-index: -1;
     pointer-events: none;
 }
@@ -125,7 +109,6 @@ body::after {
     width: 500px;
     height: 500px;
     background: hsl(var(--theme-hue), 70%, 50%);
-    top: -10%;
     right: -10%;
     animation: float 25s ease-in-out infinite;
 }
@@ -148,6 +131,62 @@ body::after {
     animation: float 20s ease-in-out infinite;
 }
 
+/* Aurora layers for premium glow */
+.aurora {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    mix-blend-mode: screen;
+}
+
+.aurora-1 {
+    background:
+        radial-gradient(600px 300px at 15% 20%, hsl(calc(var(--theme-hue) + 40) 80% 60% / 0.12), transparent 70%),
+        radial-gradient(700px 400px at 85% 10%, hsl(calc(var(--theme-hue) + 90) 70% 60% / 0.10), transparent 70%);
+    filter: blur(50px) saturate(120%);
+    animation: auroraShift 30s ease-in-out infinite;
+}
+
+.aurora-2 {
+    background:
+        radial-gradient(600px 300px at 20% 85%, hsl(calc(var(--theme-hue) - 20) 80% 55% / 0.10), transparent 70%),
+        radial-gradient(700px 400px at 80% 75%, hsl(calc(var(--theme-hue) + 10) 70% 60% / 0.08), transparent 70%);
+    filter: blur(55px) saturate(120%);
+    animation: auroraShift 34s ease-in-out infinite reverse;
+}
+
+@keyframes auroraShift {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.65;
+    }
+
+    50% {
+        transform: translate3d(2%, -1%, 0) scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate3d(-1%, 1%, 0) scale(1);
+        opacity: 0.65;
+    }
+}
+
+/* Subtle grain overlay for depth */
+.grain {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--noise-opacity);
+    background-image:
+        repeating-linear-gradient(0deg, #000 0 1px, transparent 1px 2px),
+        repeating-linear-gradient(90deg, #000 0 1px, transparent 1px 2px);
+    background-size: 3px 3px, 3px 3px;
+    mix-blend-mode: overlay;
+}
+
 @keyframes float {
 
     0%,
@@ -164,27 +203,7 @@ body::after {
     }
 }
 
-@keyframes gradientShift {
-
-    0%,
-    100% {
-        transform: scale(1) rotate(0deg);
-    }
-
-    50% {
-        transform: scale(1.1) rotate(5deg);
-    }
-}
-
-@keyframes meshFloat {
-    0% {
-        background-position: 0 0, 0 0;
-    }
-
-    100% {
-        background-position: 200px 200px, -150px -150px;
-    }
-}
+/* Removed background animation keyframes for a static background */
 
 /* Layout helpers */
 .container {
@@ -276,7 +295,7 @@ body::after {
 }
 
 .btn-secondary {
-    background: var(--color-bg-alt);
+    background: color-mix(in srgb, var(--color-bg-alt) 80%, var(--color-border) 20%);
     color: var(--color-fg);
     box-shadow:
         0 1px 2px hsl(var(--theme-hue) 20% 10% / 0.1),
@@ -303,7 +322,7 @@ body::after {
 }
 
 .card {
-    background: var(--color-bg-alt);
+    background: color-mix(in srgb, var(--color-bg-alt) 85%, var(--color-border) 15%);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     padding: 1.25rem 1.5rem;
