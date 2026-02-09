@@ -2,7 +2,7 @@
 
 // import { motion } from "framer-motion";
 
-// export default function MetricsDashboardPage() {
+export default function MetricsDashboardPage() {}
 //     const sessionMetrics = [
 //         { label: "Total Analyses", value: "247", color: "from-blue-500 to-blue-600" },
 //         { label: "Avg Confidence", value: "92.3%", color: "from-green-500 to-emerald-500" },
