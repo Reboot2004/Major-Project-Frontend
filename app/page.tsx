@@ -69,6 +69,24 @@ export default function HomePage() {
         }
     ];
 
+    const howToSteps = [
+        {
+            title: "Upload and process a sample",
+            desc: "Open the Demo, upload a cervical cell slide (or use a sample image), and let the system run preprocessing plus analysis.",
+            gif: "/images/Upload.gif"
+        },
+        {
+            title: "Review AI predictions",
+            desc: "See model outputs in one place – cell type classification, U-Net segmentation masks, and XAI heatmaps.",
+            gif: "/images/Prediction.gif"
+        },
+        {
+            title: "Export a detailed report",
+            desc: "Generate and download a structured PDF report summarizing findings, uncertainty metrics, and clinical decision support.",
+            gif: "/images/Report.gif"
+        }
+    ];
+
     const pillars = [
         {
             title: "Advanced Classification",
@@ -156,12 +174,61 @@ export default function HomePage() {
                         Try the Demo
                     </Link>
                     <Link
-                        href="/about"
+                        href="#how-to-use"
                         className="inline-flex items-center justify-center px-6 py-3 rounded-full border border-[var(--color-border)] text-[var(--color-fg)] font-semibold hover:bg-[var(--color-bg-alt)] transition"
                     >
-                        Learn More
+                        User Manual
                     </Link>
                 </motion.div>
+            </section>
+
+            <section id="how-to-use" className="py-10 scroll-mt-24">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center space-y-3 mb-10"
+                >
+                    <h2 className="text-3xl md:text-4xl font-bold">
+                        How to <span className="text-[var(--color-accent)]">Use HerHealth</span>
+                    </h2>
+                    <p className="text-muted max-w-2xl mx-auto text-sm md:text-base">
+                        A simple three-step flow to explore the demo and understand your results.
+                    </p>
+                </motion.div>
+
+                <div className="space-y-5">
+                    {howToSteps.map((step, i) => (
+                        <motion.div
+                            key={step.title}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 * i, duration: 0.45 }}
+                            className="card border border-[var(--color-border)] bg-[var(--color-bg-alt)]/60 overflow-hidden flex flex-col md:flex-row md:items-stretch"
+                        >
+                            <div className="relative overflow-hidden md:w-1/2">
+                                <img
+                                    src={step.gif}
+                                    alt={step.title}
+                                    className="w-full h-52 md:h-full object-cover"
+                                />
+                            </div>
+                            <div className="flex-1 px-4 py-4 flex gap-4 items-start">
+                                <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[var(--color-accent)]/15 border border-[var(--color-accent)]/30 flex items-center justify-center text-xs font-semibold text-[var(--color-accent)]">
+                                    {i + 1}
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-sm md:text-base mb-1">
+                                        {step.title}
+                                    </h3>
+                                    <p className="text-xs md:text-sm text-muted">
+                                        {step.desc}
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
             </section>
 
             <section className="py-4">

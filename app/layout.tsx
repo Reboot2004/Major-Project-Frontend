@@ -18,21 +18,55 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body className={`${inter.className} min-h-screen flex flex-col`} suppressHydrationWarning>
                 <header className="sticky top-0 z-50 border-b border-white/10 bg-[var(--color-bg)]/80 backdrop-blur-xl">
                     <nav className="container h-16 flex items-center justify-between">
-                        <Link href="/" className="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center">
-                                <span className="text-[var(--color-accent)] text-sm font-black">H</span>
-                            </div>
-                            Her<span className="text-[var(--color-accent)]">Health</span><span>.AI</span>
+                        <Link
+                            href="/"
+                            className="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity flex items-center gap-3"
+                        >
+                            <img
+                                src="/images/her_health_logo.svg"
+                                alt="HerHealth.AI logo"
+                                className="h-8 w-auto"
+                            />
+                            <span className="flex items-baseline gap-1">
+                                <span>Her</span>
+                                <span className="text-[var(--color-accent)]">Health</span>
+                                <span>.ai</span>
+                            </span>
                         </Link>
-                        <div className="flex items-center gap-8">
-                            <ul className="flex items-center gap-1 text-sm">
+                        <div className="flex items-center gap-4">
+                            {/* Desktop navigation */}
+                            <ul className="hidden md:flex items-center gap-1 text-sm">
                                 <li><Link href="/demo" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">Demo</Link></li>
+                                <li><Link href="/results" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">Previous Predictions</Link></li>
                                 <li><Link href="/models" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">Models</Link></li>
                                 <li><Link href="/xai" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">XAI</Link></li>
                                 <li><Link href="/dataset" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">Dataset</Link></li>
                                 <li><Link href="/about" className="px-3 py-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">About</Link></li>
                             </ul>
                             <ThemeToggle />
+
+                            {/* Mobile menu */}
+                            <details className="relative md:hidden">
+                                <summary className="list-none flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 cursor-pointer">
+                                    <span className="sr-only">Toggle navigation</span>
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </summary>
+                                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-lg py-2 z-50">
+                                    <Link href="/demo" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">Demo</Link>
+                                    <Link href="/results" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">Previous Predictions</Link>
+                                    <Link href="/models" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">Models</Link>
+                                    <Link href="/xai" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">XAI</Link>
+                                    <Link href="/dataset" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">Dataset</Link>
+                                    <Link href="/about" className="block px-4 py-2 text-sm hover:bg-[var(--color-border)] transition-colors">About</Link>
+                                </div>
+                            </details>
                         </div>
                     </nav>
                 </header>

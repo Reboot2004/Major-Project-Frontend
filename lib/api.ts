@@ -101,6 +101,31 @@ export type AnalysisReport = {
     analyst_notes?: string;
 };
 
+// Historical Predictions (MongoDB)
+export type HistoricalPrediction = {
+    id: string;
+    patient_id?: string;
+    patient_name?: string;
+    kind?: string;
+    model?: string;
+    xaiMethod?: string;
+    magnification?: string | number;
+    classification?: string;
+    probabilities?: Record<string, number>;
+    quality?: unknown;
+    uncertainty?: unknown;
+    clinical_decision?: ClinicalDecision;
+    metrics?: SegmentationMetrics;
+    images?: {
+        original?: string;
+        segmentation?: string;
+        scorecam?: string;
+        layercam?: string;
+        [key: string]: unknown;
+    };
+    timestamp?: string;
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function classify(file: File): Promise<PredictResponse> {
@@ -154,11 +179,26 @@ export async function segment(file: File): Promise<PredictResponse> {
 }
 
 // Combined convenience call
-export async function classifyAndSegment(file: File): Promise<PredictResponse> {
+export async function classifyAndSegment(file: File, patient?: { id?: string; name?: string }): Promise<PredictResponse> {
     console.log("[Frontend API] Calling classifyAndSegment...");
-    const seg = await segment(file);
-    console.log("[Frontend API] Using real backend data");
-    return seg;
+
+    const form = new FormData();
+    form.append("file", file);
+
+    if (patient?.id) {
+        form.append("patient_id", patient.id);
+    }
+    if (patient?.name) {
+        form.append("patient_name", patient.name);
+    }
+
+    const res = await fetch(`${API_URL}/api/v1/segmentation/predict`, { method: "POST", body: form });
+    console.log("[Frontend API] Response status (classifyAndSegment):", res.status, res.statusText);
+    if (!res.ok) throw new Error(`Segmentation failed: ${res.status}`);
+
+    const data = await res.json();
+    console.log("[Frontend API] classifyAndSegment response:", data);
+    return data;
 }
 
 // Quality Assessment
@@ -255,4 +295,43 @@ export async function getClasses(): Promise<string[]> {
 export function toDataUrl(base64?: string) {
     if (!base64) return undefined;
     return `data:image/png;base64,${base64}`;
+}
+
+// Historical predictions
+export async function getOldPredictions(): Promise<HistoricalPrediction[]> {
+    console.log("[Frontend API] Fetching previous predictions...");
+    const res = await fetch(`${API_URL}/api/oldpreds`);
+    if (!res.ok) throw new Error(`Failed to fetch previous predictions: ${res.status}`);
+    const data = await res.json();
+    console.log("[Frontend API] Previous predictions count:", Array.isArray(data) ? data.length : 0);
+    return data;
+}
+
+export async function getOldPredictionById(id: string): Promise<HistoricalPrediction> {
+    console.log("[Frontend API] Fetching previous prediction by id...", id);
+    const res = await fetch(`${API_URL}/api/oldpreds/${id}`);
+    if (!res.ok) throw new Error(`Failed to fetch previous prediction: ${res.status}`);
+    return res.json();
+}
+
+export async function downloadHistoricalPdf(id: string): Promise<void> {
+    console.log("[Frontend API] Downloading historical PDF for id", id);
+    const res = await fetch(`${API_URL}/api/oldpreds/${id}/pdf`);
+    if (!res.ok) throw new Error(`Failed to download PDF: ${res.status}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `herhealth_analysis_${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+export async function downloadHistoricalReport(id: string): Promise<Blob> {
+    console.log("[Frontend API] Downloading historical report for id", id);
+    const res = await fetch(`${API_URL}/api/oldpreds/${id}/report`);
+    if (!res.ok) throw new Error(`Failed to download report: ${res.status}`);
+    return res.blob();
 }

@@ -6,7 +6,13 @@ import { classifyAndSegment } from "@/lib/api";
 import Skeleton from "@/components/Skeleton";
 import { useToast } from "@/components/ToastStore";
 
-export default function ImageUploader({ onResult }: { onResult: (file: File, response: any) => void }) {
+interface Props {
+    onResult: (file: File, response: any) => void;
+    patientId?: string;
+    patientName?: string;
+}
+
+export default function ImageUploader({ onResult, patientId, patientName }: Props) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -35,7 +41,10 @@ export default function ImageUploader({ onResult }: { onResult: (file: File, res
 
         try {
             // Core classification/segmentation using the original image
-            const res = await classifyAndSegment(file);
+            const res = await classifyAndSegment(file, {
+                id: patientId,
+                name: patientName,
+            });
 
             setProgress(100);
             setTimeout(() => {

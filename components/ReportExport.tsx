@@ -8,13 +8,14 @@ import { generateReport, exportPDF } from "@/lib/api";
 interface Props {
     result: PredictResponse;
     imageFile?: File;
+    patientId?: string;
+    patientName?: string;
 }
 
-export default function ReportExport({ result, imageFile }: Props) {
+export default function ReportExport({ result, imageFile, patientId, patientName }: Props) {
     const [loading, setLoading] = useState(false);
     const [report, setReport] = useState<AnalysisReport | null>(null);
     const [exporting, setExporting] = useState(false);
-    const [patientId, setPatientId] = useState("");
     const [analysisDate, setAnalysisDate] = useState(new Date().toISOString().split("T")[0]);
     const [sampleId, setSampleId] = useState("");
     const [clinician, setClinician] = useState("");
@@ -25,15 +26,12 @@ export default function ReportExport({ result, imageFile }: Props) {
             alert("Image file is required for report generation");
             return;
         }
-        if (!patientId.trim()) {
-            alert("Patient ID is required for report generation");
-            return;
-        }
 
         setLoading(true);
         try {
             const reportData = await generateReport(result, imageFile, {
-                patient_id: patientId.trim(),
+                patient_id: patientId && patientId.trim() ? patientId.trim() : undefined,
+                patient_name: patientName && patientName.trim() ? patientName.trim() : undefined,
                 analysis_date: analysisDate,
                 sample_id: sampleId.trim() || undefined,
                 clinician: clinician.trim() || undefined,
@@ -95,16 +93,6 @@ export default function ReportExport({ result, imageFile }: Props) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-xs font-semibold text-muted">Patient ID *</label>
-                    <input
-                        type="text"
-                        value={patientId}
-                        onChange={(e) => setPatientId(e.target.value)}
-                        className="w-full rounded-md border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
-                        placeholder="Enter patient ID"
-                    />
-                </div>
                 <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted">Analysis Date</label>
                     <input
