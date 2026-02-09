@@ -8,14 +8,16 @@ export default function SegmentationBlend({ original, mask }: Props) {
 
     useEffect(() => {
         const canvas = canvasRef.current; if (!canvas) return;
-        const ctx = canvas.getContext("2d"); if (!ctx) return;
         const imgOrig = new Image(); const imgMask = new Image();
         imgOrig.src = original; imgMask.src = mask;
         let loaded = 0;
         function draw() {
-            if (!canvasRef.current) return;
-            canvas.width = imgOrig.width; canvas.height = imgOrig.height;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const currentCanvas = canvasRef.current;
+            if (!currentCanvas) return;
+            const ctx = currentCanvas.getContext("2d");
+            if (!ctx) return;
+            currentCanvas.width = imgOrig.width; currentCanvas.height = imgOrig.height;
+            ctx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
             ctx.drawImage(imgOrig, 0, 0);
             ctx.globalAlpha = alpha;
             ctx.drawImage(imgMask, 0, 0);
