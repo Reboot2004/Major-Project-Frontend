@@ -13,9 +13,10 @@ export default function SegmentationBlend({ original, mask }: Props) {
         imgOrig.src = original; imgMask.src = mask;
         let loaded = 0;
         function draw() {
-            if (!canvasRef.current) return;
-            canvas.width = imgOrig.width; canvas.height = imgOrig.height;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const currentCanvas = canvasRef.current;
+            if (!currentCanvas) return;
+            currentCanvas.width = imgOrig.width; currentCanvas.height = imgOrig.height;
+            ctx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
             ctx.drawImage(imgOrig, 0, 0);
             ctx.globalAlpha = alpha;
             ctx.drawImage(imgMask, 0, 0);
