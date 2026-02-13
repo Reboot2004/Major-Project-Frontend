@@ -189,6 +189,141 @@ export default function ClassificationResult({ result, originalImage }: { result
                     </motion.p>
                 </motion.div>
             )}
+
+            {/* Segmentation Analysis Section */}
+            {(result.segmentation_mask_base64 || result.segmentation_overlay_base64) && originalImage && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.0 }}
+                    className="relative pt-6 border-t border-[var(--color-border)]"
+                >
+                    <h4 className="text-sm font-semibold text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                        Attention U-Net Segmentation
+                    </h4>
+
+                    <div className="grid md:grid-cols-3 gap-6">
+                        <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                        >
+                            <div className="text-xs text-muted mb-2 font-medium">Original Image</div>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={originalImage} alt="Original for segmentation" className="rounded-lg w-full border border-[var(--color-border)] shadow-lg" />
+                        </motion.div>
+
+                        {result.segmentation_mask_base64 && (
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                            >
+                                <div className="text-xs text-muted mb-2 font-medium flex items-center gap-2">
+                                    Segmentation Mask
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[10px] border border-red-500/20">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                        Nucleus
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-[10px] border border-green-500/20">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Cytoplasm
+                                    </span>
+                                </div>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={`data:image/png;base64,${result.segmentation_mask_base64}`}
+                                    alt="Segmentation Mask"
+                                    className="rounded-lg w-full border border-[var(--color-border)] shadow-lg"
+                                />
+                            </motion.div>
+                        )}
+
+                        {result.segmentation_overlay_base64 && (
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                            >
+                                <div className="text-xs text-muted mb-2 font-medium">Blended Overlay</div>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={`data:image/png;base64,${result.segmentation_overlay_base64}`}
+                                    alt="Segmentation Overlay"
+                                    className="rounded-lg w-full border border-[var(--color-border)] shadow-lg"
+                                />
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Segmentation Metrics */}
+                    {result.segmentation_metrics && Object.keys(result.segmentation_metrics).length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1.3 }}
+                            className="mt-6 p-4 bg-gradient-to-br from-green-500/5 to-green-500/10 border border-green-500/20 rounded-xl"
+                        >
+                            <h5 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Quantitative Metrics
+                            </h5>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {result.segmentation_metrics.num_cells !== undefined && (
+                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                        <div className="text-xs text-muted mb-1">Cells Detected</div>
+                                        <div className="text-lg font-bold">{result.segmentation_metrics.num_cells}</div>
+                                    </div>
+                                )}
+                                {result.segmentation_metrics.nucleus_ratio !== undefined && (
+                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                        <div className="text-xs text-muted mb-1">Nuclear Area</div>
+                                        <div className="text-lg font-bold text-red-400">
+                                            {(result.segmentation_metrics.nucleus_ratio * 100).toFixed(1)}%
+                                        </div>
+                                    </div>
+                                )}
+                                {result.segmentation_metrics.cytoplasm_ratio !== undefined && (
+                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                        <div className="text-xs text-muted mb-1">Cytoplasmic Area</div>
+                                        <div className="text-lg font-bold text-green-400">
+                                            {(result.segmentation_metrics.cytoplasm_ratio * 100).toFixed(1)}%
+                                        </div>
+                                    </div>
+                                )}
+                                {result.segmentation_metrics.nucleus_ratio && result.segmentation_metrics.cytoplasm_ratio && (
+                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                        <div className="text-xs text-muted mb-1">N/C Ratio</div>
+                                        <div className="text-lg font-bold text-yellow-400">
+                                            {(result.segmentation_metrics.nucleus_ratio / (result.segmentation_metrics.cytoplasm_ratio + 0.001)).toFixed(2)}
+                                        </div>
+                                    </div>
+                                )}
+                                {result.segmentation_metrics.coverage_ratio !== undefined && (
+                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                        <div className="text-xs text-muted mb-1">Cell Coverage</div>
+                                        <div className="text-lg font-bold">
+                                            {(result.segmentation_metrics.coverage_ratio * 100).toFixed(1)}%
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    <motion.p
+                        className="text-xs text-muted mt-3 leading-relaxed"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.4 }}
+                    >
+                        Automated cell segmentation identifies nucleus (red) and cytoplasm (green) regions.
+                        The N/C ratio is a key diagnostic indicator—values &gt; 0.5 may suggest abnormal nuclear enlargement.
+                    </motion.p>
+                </motion.div>
+            )}
         </motion.div>
     );
 }

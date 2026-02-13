@@ -16,7 +16,7 @@ export type UncertaintyMetrics = {
     prediction_stability: number; // 0-100, stability across variations
 };
 
-// Segmentation Metrics (simplified: remove IOU/DSC/F1)
+// Segmentation Metrics (enhanced with nucleus/cytoplasm ratios)
 export type SegmentationMetrics = {
     coverage_ratio: number; // proportion of image segmented
     num_cells: number; // connected components count
@@ -24,6 +24,12 @@ export type SegmentationMetrics = {
     edge_density: number; // boundary complexity
     avg_solidity: number; // compactness of segments
     accuracy: number; // proxy: equals coverage_ratio
+    nucleus_pixels?: number; // number of nucleus pixels
+    cytoplasm_pixels?: number; // number of cytoplasm pixels
+    background_pixels?: number; // number of background pixels
+    total_pixels?: number; // total pixels in image
+    nucleus_ratio?: number; // proportion of nucleus (0-1)
+    cytoplasm_ratio?: number; // proportion of cytoplasm (0-1)
 };
 
 // Multi-Cell Detection
@@ -59,9 +65,11 @@ export type PredictResponse = {
     // Original features
     original_image_base64?: string;
     segmentation_mask_base64?: string;
+    segmentation_overlay_base64?: string; // NEW: Blended overlay
     xai_scorecam_base64?: string;
     xai_layercam_base64?: string;
-    metrics?: SegmentationMetrics;
+    metrics?: SegmentationMetrics; // Deprecated, use segmentation_metrics
+    segmentation_metrics?: SegmentationMetrics; // NEW: Enhanced segmentation metrics
 
     // New features
     quality?: QualityAssessment;
@@ -69,6 +77,15 @@ export type PredictResponse = {
     multi_cell?: MultiCellDetectionResult;
     clinical_decision?: ClinicalDecision;
     normalized_image_base64?: string;
+
+    // Preprocessing metadata
+    preprocessing?: {
+        quality_score: number;
+        quality_flags: string[];
+        cells_detected: number;
+        stain_normalized_available: boolean;
+        session_id: string;
+    };
 
     // Metadata
     processing_time_ms?: number;
