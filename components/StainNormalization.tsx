@@ -33,10 +33,7 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
             <div>
                 <h3 className="text-xl font-bold">Stain Normalization</h3>
                 <p className="text-sm text-muted mt-1">Drag to compare original vs. normalized image</p>
-                {method && <p className="text-xs text-muted mt-1">Method: {method}</p>}
-                <p className="text-xs text-muted mt-1" title="Adaptive normalization reduces scanner/stain variance while preserving cellular morphology.">
-                    Why this changed: better cross-dataset stain consistency from a single input image.
-                </p>
+                
             </div>
 
             {/* Comparison Slider (constrained size) */}
