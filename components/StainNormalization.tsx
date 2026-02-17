@@ -43,19 +43,24 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
             {/* Comparison Slider (constrained size) */}
             <div
                 ref={sliderContainerRef}
-                className="relative w-full max-w-[520px] mx-auto overflow-hidden rounded-lg border border-[var(--color-border)] aspect-square bg-[var(--color-bg)]"
+                className="relative w-full max-w-[520px] mx-auto overflow-hidden rounded-lg border border-[var(--color-border)] aspect-square bg-[var(--color-bg)] select-none"
                 tabIndex={0}
                 role="slider"
                 aria-label="Stain normalization comparison"
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(sliderPosition)}
+                style={{ touchAction: "none" }}
                 onPointerDown={(e) => {
+                    e.preventDefault();
                     isDraggingRef.current = true;
                     updateSliderFromClientX(e.clientX);
                     (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
                 }}
                 onPointerMove={(e) => {
+                    if (isDraggingRef.current) {
+                        e.preventDefault();
+                    }
                     if (!isDraggingRef.current) return;
                     updateSliderFromClientX(e.clientX);
                 }}
@@ -85,7 +90,9 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 <img
                     src={`data:image/png;base64,${normalizedImageBase64}`}
                     alt="Normalized"
-                    className="absolute inset-0 w-full h-full object-contain"
+                    draggable={false}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
                 />
 
                 {/* Original Image (Foreground with clipping) */}
@@ -96,7 +103,9 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                     <img
                         src={`data:image/png;base64,${originalImageBase64}`}
                         alt="Original"
-                        className="w-full h-full object-contain"
+                        draggable={false}
+                        onDragStart={(e) => e.preventDefault()}
+                        className="w-full h-full object-contain pointer-events-none select-none"
                     />
                 </div>
 
