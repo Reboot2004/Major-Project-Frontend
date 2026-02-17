@@ -36,7 +36,6 @@ export type SegmentationMetrics = {
 export type DetectedCell = {
     cell_id: string;
     bounding_box: { x: number; y: number; width: number; height: number };
-    confidence: number;
     cell_image_base64: string;
 };
 

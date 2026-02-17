@@ -35,6 +35,9 @@ export default function MultiCellDetection({ detection }: Props) {
 
     const safeIndex = Math.min(selectedCell, Math.max(cells.length - 1, 0));
     const selected = cells[safeIndex];
+    const selectedArea = selected
+        ? selected.bounding_box.width * selected.bounding_box.height
+        : 0;
 
     return (
         <motion.div
@@ -45,10 +48,25 @@ export default function MultiCellDetection({ detection }: Props) {
             <div className="flex items-start justify-between">
                 <div>
                     <h3 className="text-xl font-bold">Multi-Cell Detection</h3>
-                    <p className="text-sm text-muted mt-1">Detected cells in image</p>
+                    <p className="text-sm text-muted mt-1">Detected cell regions from the uploaded image</p>
                 </div>
                 <div className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
                     <p className="text-sm font-bold text-blue-400">{totalCells} cells</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
+                    <p className="text-2xl font-bold text-blue-500">{totalCells}</p>
+                    <p className="text-xs text-muted">Detected Cells</p>
+                </div>
+                <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
+                    <p className="text-2xl font-bold text-emerald-500">#{safeIndex + 1}</p>
+                    <p className="text-xs text-muted">Selected Cell</p>
+                </div>
+                <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-3">
+                    <p className="text-2xl font-bold text-purple-500">{selectedArea}</p>
+                    <p className="text-xs text-muted">Selected Area (px²)</p>
                 </div>
             </div>
 
@@ -104,22 +122,10 @@ export default function MultiCellDetection({ detection }: Props) {
                     >
                         <div className="flex items-center justify-between">
                             <h4 className="font-semibold">Cell #{selectedCell + 1} Details</h4>
-                            <div className="px-3 py-1 rounded-full bg-green-500/20 border border-green-500/30">
-                                <p className="text-xs font-semibold text-green-400">
-                                    {(selected.confidence * 100).toFixed(1)}% Confidence
+                            <div className="px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30">
+                                <p className="text-xs font-semibold text-blue-400">
+                                    ID: {selected.cell_id}
                                 </p>
-                            </div>
-                        </div>
-
-                        {/* Confidence Visualizer */}
-                        <div className="space-y-2">
-                            <div className="h-3 bg-[var(--color-bg)] rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${selected.confidence * 100}%` }}
-                                    transition={{ duration: 0.6 }}
-                                    className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
-                                />
                             </div>
                         </div>
 
@@ -143,6 +149,11 @@ export default function MultiCellDetection({ detection }: Props) {
                             </div>
                         </div>
 
+                        <div className="p-3 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)]">
+                            <p className="text-xs text-muted">Bounding Box Area</p>
+                            <p className="text-lg font-bold">{selectedArea} px²</p>
+                        </div>
+
                         {/* Cell Crop */}
                         <div className="space-y-2">
                             <p className="text-xs font-semibold text-muted">Cell Crop</p>
@@ -155,26 +166,6 @@ export default function MultiCellDetection({ detection }: Props) {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[var(--color-border)] text-center">
-                <div>
-                    <p className="text-2xl font-bold text-blue-500">{totalCells}</p>
-                    <p className="text-xs text-muted">Total Cells</p>
-                </div>
-                {/* <div>
-                    <p className="text-2xl font-bold text-green-500">
-                        {(cells.reduce((acc, c) => acc + c.confidence, 0) / totalCells * 100).toFixed(1)}%
-                    </p>
-                    <p className="text-xs text-muted">Avg Confidence</p>
-                </div>
-                <div>
-                    <p className="text-2xl font-bold text-purple-500">
-                        {Math.max(...cells.map(c => c.confidence * 100)).toFixed(1)}%
-                    </p>
-                    <p className="text-xs text-muted">Max Confidence</p>
-                </div> */}
-            </div>
         </motion.div>
     );
 }
