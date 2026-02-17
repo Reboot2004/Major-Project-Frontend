@@ -12,9 +12,18 @@ interface Props {
 export default function StainNormalizationViewer({ originalImageBase64, normalizedImageBase64, method }: Props) {
     const [sliderPosition, setSliderPosition] = useState(50);
     const sliderContainerRef = useRef<HTMLDivElement | null>(null);
+    const isDraggingRef = useRef(false);
 
     const clamp = (value: number) => Math.max(0, Math.min(100, value));
     const moveSliderBy = (delta: number) => setSliderPosition((prev) => clamp(prev + delta));
+
+    const updateSliderFromClientX = (clientX: number) => {
+        const container = sliderContainerRef.current;
+        if (!container) return;
+        const rect = container.getBoundingClientRect();
+        const newPosition = ((clientX - rect.left) / Math.max(1, rect.width)) * 100;
+        setSliderPosition(clamp(newPosition));
+    };
 
     return (
         <motion.div
@@ -41,6 +50,22 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(sliderPosition)}
+                onPointerDown={(e) => {
+                    isDraggingRef.current = true;
+                    updateSliderFromClientX(e.clientX);
+                    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                }}
+                onPointerMove={(e) => {
+                    if (!isDraggingRef.current) return;
+                    updateSliderFromClientX(e.clientX);
+                }}
+                onPointerUp={(e) => {
+                    isDraggingRef.current = false;
+                    (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+                }}
+                onPointerCancel={() => {
+                    isDraggingRef.current = false;
+                }}
                 onKeyDown={(e) => {
                     if (e.key === "ArrowLeft") {
                         e.preventDefault();
@@ -76,17 +101,7 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 </div>
 
                 {/* Slider Handle */}
-                <motion.div
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDrag={(_, info) => {
-                        const container = sliderContainerRef.current;
-                        if (container) {
-                            const rect = container.getBoundingClientRect();
-                            const newPosition = ((info.point.x - rect.left) / Math.max(1, rect.width)) * 100;
-                            setSliderPosition(clamp(newPosition));
-                        }
-                    }}
+                <div
                     style={{ left: `${sliderPosition}%` }}
                     className="absolute top-0 bottom-0 w-1 bg-[hsl(350,65%,86%)] cursor-col-resize z-10 transform -translate-x-1/2"
                 >
@@ -98,7 +113,7 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Labels */}
                 <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[var(--color-bg-elevated)]/80 text-[var(--color-fg)] text-xs font-semibold border border-[var(--color-border)]">

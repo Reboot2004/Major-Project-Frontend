@@ -96,13 +96,17 @@ export default function AdvancedToolsPanel() {
 
 
     const handleFileSelect = async (file: File, tool: ToolType) => {
+        if (tool === "stain") {
+            setStainSource(file);
+            await runStainNormalization(file);
+            return;
+        }
+
         setLoading(true);
         try {
             if (tool === "quality") {
                 const result = await assessQuality(file);
                 setQualityResult(result);
-            } else if (tool === "stain") {
-                await runStainNormalization(file);
             } else if (tool === "multicell") {
                 const result = await detectMultipleCells(file);
                 setMultiCellResult(result);
@@ -175,7 +179,7 @@ export default function AdvancedToolsPanel() {
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                                 setActiveTool(tool.id);
-                                if (tool.id !== "stain") fileInputRef.current?.click();
+                                fileInputRef.current?.click();
                             }}
                             disabled={loading}
                             className={`p-6 rounded-lg border-2 transition-all text-left ${activeTool === tool.id
@@ -197,10 +201,8 @@ export default function AdvancedToolsPanel() {
                     className="hidden"
                     onChange={(e) => {
                         const files = Array.from(e.target.files || []);
-                        if (!activeTool) return;
-                        if (activeTool === "quality" || activeTool === "multicell") {
-                            handleFileSelect(files[0], activeTool);
-                        }
+                        if (!activeTool || files.length === 0) return;
+                        handleFileSelect(files[0], activeTool);
                         e.target.value = "";
                     }}
                 />
@@ -233,22 +235,17 @@ export default function AdvancedToolsPanel() {
                         </div>
                     )}
 
-                    <div className="grid md:grid-cols-1 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-muted">Source Image</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="w-full text-sm"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0] || null;
-                                    setStainSource(file);
-                                    if (file) {
-                                        runStainNormalization(file);
-                                    }
-                                }}
-                            />
-                        </div>
+                    <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/60 px-3 py-2">
+                        <p className="text-xs text-muted">
+                            {stainSource ? `Selected: ${stainSource.name}` : "No image selected yet"}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3 py-1.5 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)]"
+                        >
+                            {stainSource ? "Choose Another" : "Choose Image"}
+                        </button>
                     </div>
 
                     {stainResult?.strategy && (
