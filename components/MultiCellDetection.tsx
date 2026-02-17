@@ -162,7 +162,7 @@ export default function MultiCellDetection({ detection }: Props) {
                     <p className="text-2xl font-bold text-blue-500">{totalCells}</p>
                     <p className="text-xs text-muted">Total Cells</p>
                 </div>
-                <div>
+                {/* <div>
                     <p className="text-2xl font-bold text-green-500">
                         {(cells.reduce((acc, c) => acc + c.confidence, 0) / totalCells * 100).toFixed(1)}%
                     </p>
@@ -173,7 +173,7 @@ export default function MultiCellDetection({ detection }: Props) {
                         {Math.max(...cells.map(c => c.confidence * 100)).toFixed(1)}%
                     </p>
                     <p className="text-xs text-muted">Max Confidence</p>
-                </div>
+                </div> */}
             </div>
         </motion.div>
     );
