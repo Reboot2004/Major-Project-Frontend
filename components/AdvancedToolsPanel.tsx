@@ -19,11 +19,19 @@ export default function AdvancedToolsPanel() {
     const [activeTool, setActiveTool] = useState<ToolType | null>(null);
     const [loading, setLoading] = useState(false);
     const [qualityResult, setQualityResult] = useState<QualityAssessment | null>(null);
-    const [stainResult, setStainResult] = useState<{ original: string; normalized: string } | null>(null);
+    const [stainResult, setStainResult] = useState<{
+        original: string;
+        normalized: string;
+        method?: string;
+        strategy?: {
+            background_white_balance?: boolean;
+            foreground_lab_normalization?: boolean;
+            adaptive_blend?: boolean;
+        };
+    } | null>(null);
     const [multiCellResult, setMultiCellResult] = useState<MultiCellDetectionResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [stainSource, setStainSource] = useState<File | null>(null);
-    const [stainTarget, setStainTarget] = useState<File | null>(null);
 
     const readFileAsBase64 = (file: File) =>
         new Promise<string>((resolve, reject) => {
@@ -36,14 +44,16 @@ export default function AdvancedToolsPanel() {
             reader.readAsDataURL(file);
         });
 
-    const runStainNormalization = async (source: File, target: File) => {
+    const runStainNormalization = async (source: File) => {
         setLoading(true);
         try {
             const originalBase64 = await readFileAsBase64(source);
-            const normalized = await normalizStain(source, target);
+            const normalized = await normalizStain(source);
             setStainResult({
                 original: originalBase64,
                 normalized: normalized.normalized_image_base64,
+                method: normalized.stain_normalization_method,
+                strategy: normalized.normalization_strategy,
             });
         } catch (error) {
             console.error("Stain normalization failed:", error);
@@ -83,11 +93,7 @@ export default function AdvancedToolsPanel() {
                 const result = await assessQuality(file);
                 setQualityResult(result);
             } else if (tool === "stain") {
-                if (!targetFile) {
-                    alert("Please select two images: source and target reference.");
-                    return;
-                }
-                await runStainNormalization(file, targetFile);
+                await runStainNormalization(file);
             } else if (tool === "multicell") {
                 const result = await detectMultipleCells(file);
                 setMultiCellResult(result);
@@ -121,7 +127,7 @@ export default function AdvancedToolsPanel() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M4 12h16M4 17h16" />
                 </svg>
             ),
-            description: "Normalize staining to a target reference image",
+            description: "Normalize stain from the given image only (adaptive)",
             color: "purple",
         },
         {
@@ -200,10 +206,10 @@ export default function AdvancedToolsPanel() {
                     <div>
                         <h4 className="text-base font-semibold">Stain Normalization Inputs</h4>
                         <p className="text-sm text-muted mt-1">
-                            Select a source image and a target reference image. Normalization runs automatically once both are selected.
+                            Select one source image. Adaptive normalization analyzes only the given image.
                         </p>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-1 gap-4">
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-muted">Source Image</label>
                             <input
@@ -213,23 +219,8 @@ export default function AdvancedToolsPanel() {
                                 onChange={(e) => {
                                     const file = e.target.files?.[0] || null;
                                     setStainSource(file);
-                                    if (file && stainTarget) {
-                                        runStainNormalization(file, stainTarget);
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-muted">Target Reference</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="w-full text-sm"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0] || null;
-                                    setStainTarget(file);
-                                    if (file && stainSource) {
-                                        runStainNormalization(stainSource, file);
+                                    if (file) {
+                                        runStainNormalization(file);
                                     }
                                 }}
                             />
@@ -292,6 +283,7 @@ export default function AdvancedToolsPanel() {
                     <StainNormalizationViewer
                         originalImageBase64={stainResult.original}
                         normalizedImageBase64={stainResult.normalized}
+                        method={stainResult.method}
                     />
                     <div className="flex flex-wrap gap-3">
                         <button
@@ -305,7 +297,8 @@ export default function AdvancedToolsPanel() {
                             type="button"
                             onClick={() => downloadJson("stain_normalization.json", {
                                 source_filename: stainSource?.name,
-                                target_filename: stainTarget?.name,
+                                stain_normalization_method: stainResult.method,
+                                normalization_strategy: stainResult.strategy,
                                 generated_at: new Date().toISOString()
                             })}
                             className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-bg-alt)]"

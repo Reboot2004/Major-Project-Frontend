@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 interface Props {
     originalImageBase64: string;
     normalizedImageBase64: string;
+    method?: string;
 }
 
-export default function StainNormalizationViewer({ originalImageBase64, normalizedImageBase64 }: Props) {
+export default function StainNormalizationViewer({ originalImageBase64, normalizedImageBase64, method }: Props) {
     const [sliderPosition, setSliderPosition] = useState(50);
 
     return (
@@ -20,6 +21,7 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
             <div>
                 <h3 className="text-xl font-bold">Stain Normalization</h3>
                 <p className="text-sm text-muted mt-1">Drag to compare original vs. normalized image</p>
+                {method && <p className="text-xs text-muted mt-1">Method: {method}</p>}
             </div>
 
             {/* Comparison Slider (constrained size) */}
@@ -55,9 +57,9 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                         }
                     }}
                     style={{ left: `${sliderPosition}%` }}
-                    className="absolute top-0 bottom-0 w-1 bg-white cursor-col-resize z-10 transform -translate-x-1/2"
+                    className="absolute top-0 bottom-0 w-1 bg-[hsl(350,65%,86%)] cursor-col-resize z-10 transform -translate-x-1/2"
                 >
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[hsl(350,65%,86%)] rounded-full p-2 shadow-lg">
                         <svg className="w-4 h-4 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>

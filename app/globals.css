@@ -28,8 +28,8 @@
 
 [data-theme="light"] {
     --theme-mode: light;
-    --color-bg: hsl(var(--theme-hue), 20%, 96%);
-    --color-bg-alt: hsl(var(--theme-hue), 18%, 90%);
+    --color-bg: hsl(var(--theme-hue), 40%, 95%);
+    --color-bg-alt: hsl(var(--theme-hue), 34%, 90%);
     --color-fg: hsl(var(--theme-hue), 22%, 14%);
     --color-fg-muted: hsl(var(--theme-hue), 12%, 48%);
     --color-border: hsl(var(--theme-hue), 25%, 72%);
@@ -90,7 +90,7 @@ body::before {
 }
 
 [data-theme="light"] body::before {
-    background: radial-gradient(circle at top left, hsl(var(--theme-hue) 55% 92% / 0.9), hsl(var(--theme-hue) 20% 93% / 1));
+    background: radial-gradient(circle at top left, hsl(var(--theme-hue) 72% 93% / 0.92), hsl(var(--theme-hue) 38% 92% / 1));
 }
 
 body::after {

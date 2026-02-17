@@ -84,6 +84,7 @@ export type PredictResponse = {
         quality_flags: string[];
         cells_detected: number;
         stain_normalized_available: boolean;
+        stain_normalization_method?: string;
         session_id: string;
     };
 
@@ -231,11 +232,18 @@ export async function assessQuality(file: File): Promise<QualityAssessment> {
 }
 
 // Stain Normalization
-export async function normalizStain(file: File, target: File): Promise<{ normalized_image_base64: string }> {
+export async function normalizStain(file: File): Promise<{
+    normalized_image_base64: string;
+    stain_normalization_method?: string;
+    normalization_strategy?: {
+        background_white_balance?: boolean;
+        foreground_lab_normalization?: boolean;
+        adaptive_blend?: boolean;
+    };
+}> {
     console.log("[Frontend API] Starting stain normalization...");
     const form = new FormData();
     form.append("file", file);
-    form.append("target", target);
 
     const res = await fetch(`${API_URL}/api/v1/stain-normalization`, { method: "POST", body: form });
     if (!res.ok) throw new Error(`Stain normalization failed: ${res.status}`);
