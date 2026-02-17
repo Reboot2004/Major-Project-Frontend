@@ -92,7 +92,10 @@ body::before {
 }
 
 [data-theme="light"] body::before {
-    background: radial-gradient(circle at top left, hsl(var(--theme-hue) 72% 93% / 0.92), hsl(var(--theme-hue) 38% 92% / 1));
+    background:
+        radial-gradient(circle at top left, hsl(var(--theme-hue) 78% 94% / 0.95), transparent 52%),
+        radial-gradient(circle at 85% 12%, hsl(var(--theme-hue) 62% 90% / 0.65), transparent 48%),
+        linear-gradient(160deg, hsl(var(--theme-hue) 52% 93% / 1), hsl(var(--theme-hue) 30% 90% / 1));
 }
 
 body::after {
