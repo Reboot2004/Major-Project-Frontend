@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body className={`${inter.className} min-h-screen flex flex-col`} suppressHydrationWarning>
-                <header className="sticky top-0 z-50 border-b border-white/10 bg-[var(--color-bg)]/80 backdrop-blur-xl">
+                <header className="sticky top-0 z-50 border-b border-[var(--color-border)]/60 bg-[var(--color-bg)]/80 backdrop-blur-xl">
                     <nav className="container h-16 flex items-center justify-between">
                         <Link
                             href="/"
@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </nav>
                 </header>
                 <main className="container flex-1 py-10" role="main">{children}</main>
-                <footer className="border-t border-white/10 bg-[var(--color-bg-alt)]/50 backdrop-blur-sm mt-20">
+                <footer className="border-t border-[var(--color-border)]/60 bg-[var(--color-bg-alt)]/50 backdrop-blur-sm mt-20">
                     <div className="container py-10 space-y-6">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                                 ONNX Runtime
                             </div>
                         </div>
-                        <div className="text-center text-xs text-muted pt-4 border-t border-white/5">
+                        <div className="text-center text-xs text-muted pt-4 border-t border-[var(--color-border)]/40">
                             Built with Next.js 14, Spring Boot 3, and state-of-the-art deep learning models
                         </div>
                     </div>

@@ -32,6 +32,10 @@ export default function AdvancedToolsPanel() {
     const [multiCellResult, setMultiCellResult] = useState<MultiCellDetectionResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [stainSource, setStainSource] = useState<File | null>(null);
+    const [stainStatus, setStainStatus] = useState<{
+        type: "idle" | "processing" | "success" | "error";
+        message: string;
+    }>({ type: "idle", message: "" });
 
     const readFileAsBase64 = (file: File) =>
         new Promise<string>((resolve, reject) => {
@@ -45,6 +49,7 @@ export default function AdvancedToolsPanel() {
         });
 
     const runStainNormalization = async (source: File) => {
+        setStainStatus({ type: "processing", message: "Running adaptive stain normalization..." });
         setLoading(true);
         try {
             const originalBase64 = await readFileAsBase64(source);
@@ -55,9 +60,13 @@ export default function AdvancedToolsPanel() {
                 method: normalized.stain_normalization_method,
                 strategy: normalized.normalization_strategy,
             });
+            setStainStatus({
+                type: "success",
+                message: `Normalization complete${normalized.stain_normalization_method ? ` (${normalized.stain_normalization_method})` : ""}.`,
+            });
         } catch (error) {
             console.error("Stain normalization failed:", error);
-            alert("Failed to normalize stain. Please try again.");
+            setStainStatus({ type: "error", message: "Normalization failed. Please try another image." });
         } finally {
             setLoading(false);
         }
@@ -86,7 +95,7 @@ export default function AdvancedToolsPanel() {
     };
 
 
-    const handleFileSelect = async (file: File, tool: ToolType, targetFile?: File) => {
+    const handleFileSelect = async (file: File, tool: ToolType) => {
         setLoading(true);
         try {
             if (tool === "quality") {
@@ -209,6 +218,21 @@ export default function AdvancedToolsPanel() {
                             Select one source image. Adaptive normalization analyzes only the given image.
                         </p>
                     </div>
+
+                    {stainStatus.type !== "idle" && (
+                        <div
+                            className={`rounded-lg border px-3 py-2 text-sm ${
+                                stainStatus.type === "processing"
+                                    ? "border-blue-500/40 bg-blue-500/10 text-blue-300"
+                                    : stainStatus.type === "success"
+                                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                                        : "border-red-500/40 bg-red-500/10 text-red-300"
+                            }`}
+                        >
+                            {stainStatus.message}
+                        </div>
+                    )}
+
                     <div className="grid md:grid-cols-1 gap-4">
                         <div className="space-y-2">
                             <label className="text-xs font-semibold text-muted">Source Image</label>
@@ -226,6 +250,29 @@ export default function AdvancedToolsPanel() {
                             />
                         </div>
                     </div>
+
+                    {stainResult?.strategy && (
+                        <div className="space-y-2">
+                            <p className="text-xs font-semibold text-muted">Normalization Strategy</p>
+                            <div className="flex flex-wrap gap-2">
+                                {stainResult.strategy.background_white_balance && (
+                                    <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-2.5 py-1 text-[11px] font-semibold">
+                                        Background White Balance
+                                    </span>
+                                )}
+                                {stainResult.strategy.foreground_lab_normalization && (
+                                    <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-2.5 py-1 text-[11px] font-semibold">
+                                        Foreground LAB Normalization
+                                    </span>
+                                )}
+                                {stainResult.strategy.adaptive_blend && (
+                                    <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-2.5 py-1 text-[11px] font-semibold">
+                                        Adaptive Blend
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                 </motion.div>
             )}

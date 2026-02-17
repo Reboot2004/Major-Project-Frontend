@@ -27,6 +27,16 @@ export default function DemoPage() {
     const [reportError, setReportError] = useState<string | null>(null);
     const [reportGenerated, setReportGenerated] = useState(false);
 
+    const normalizeConfidencePercent = (value?: number) => {
+        if (typeof value !== "number" || Number.isNaN(value)) return null;
+        return value > 1 ? value : value * 100;
+    };
+
+    const normalizeQualityPercent = (value?: number) => {
+        if (typeof value !== "number" || Number.isNaN(value)) return null;
+        return value <= 1 ? value * 100 : value;
+    };
+
     const onResult = (file: File, res: PredictResponse) => {
         // Use original_image_base64 from backend if available, otherwise use file blob
         const imageToUse = res.original_image_base64
@@ -356,6 +366,70 @@ export default function DemoPage() {
                                         </p>
                                     </div>
                                 </motion.div>
+
+                                {/* Preprocessing Summary (Top Priority) */}
+                                {result.preprocessing && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="card space-y-3"
+                                    >
+                                        <h3 className="text-sm font-semibold">Preprocessing Summary</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-xs text-muted">Quality Score</p>
+                                                <p className="font-semibold">
+                                                    {normalizeQualityPercent(result.preprocessing.quality_score)?.toFixed(1) ?? "N/A"}%
+                                                </p>
+                                            </div>
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-xs text-muted">Cells Detected</p>
+                                                <p className="font-semibold">{result.preprocessing.cells_detected ?? "N/A"}</p>
+                                            </div>
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-xs text-muted">Normalization Method</p>
+                                                <p className="font-semibold">{result.preprocessing.stain_normalization_method || "Not reported"}</p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {/* Model Reliability Strip */}
+                                {(() => {
+                                    const confPct = normalizeConfidencePercent(result.uncertainty?.confidence);
+                                    const qualityPct = normalizeQualityPercent(result.preprocessing?.quality_score);
+                                    const entropy = typeof result.uncertainty?.entropy === "number" ? result.uncertainty.entropy : null;
+
+                                    if (confPct == null && qualityPct == null && entropy == null) return null;
+
+                                    const isHigh = (confPct ?? 0) >= 85 && (qualityPct ?? 0) >= 70 && (entropy ?? 0) <= 0.5;
+                                    const isModerate = !isHigh && (confPct ?? 0) >= 65 && (qualityPct ?? 0) >= 55;
+
+                                    const label = isHigh ? "High Reliability" : isModerate ? "Moderate Reliability" : "Low Reliability";
+                                    const classes = isHigh
+                                        ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
+                                        : isModerate
+                                            ? "border-amber-500/50 bg-amber-500/10 text-amber-300"
+                                            : "border-red-500/50 bg-red-500/10 text-red-300";
+
+                                    return (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className={`rounded-xl border px-4 py-3 ${classes}`}
+                                        >
+                                            <div className="flex flex-wrap items-center justify-between gap-3">
+                                                <div>
+                                                    <p className="text-sm font-semibold">Model Reliability</p>
+                                                    <p className="text-xs opacity-90">Uses confidence, uncertainty entropy, and image quality.</p>
+                                                </div>
+                                                <span className="inline-flex items-center rounded-full border border-current/40 px-3 py-1 text-xs font-semibold">
+                                                    {label}
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })()}
 
                                 {/* Primary Results */}
                                 <div className="grid lg:grid-cols-2 gap-6">

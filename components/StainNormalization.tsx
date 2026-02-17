@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 interface Props {
@@ -11,6 +11,10 @@ interface Props {
 
 export default function StainNormalizationViewer({ originalImageBase64, normalizedImageBase64, method }: Props) {
     const [sliderPosition, setSliderPosition] = useState(50);
+    const sliderContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const clamp = (value: number) => Math.max(0, Math.min(100, value));
+    const moveSliderBy = (delta: number) => setSliderPosition((prev) => clamp(prev + delta));
 
     return (
         <motion.div
@@ -22,10 +26,36 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 <h3 className="text-xl font-bold">Stain Normalization</h3>
                 <p className="text-sm text-muted mt-1">Drag to compare original vs. normalized image</p>
                 {method && <p className="text-xs text-muted mt-1">Method: {method}</p>}
+                <p className="text-xs text-muted mt-1" title="Adaptive normalization reduces scanner/stain variance while preserving cellular morphology.">
+                    Why this changed: better cross-dataset stain consistency from a single input image.
+                </p>
             </div>
 
             {/* Comparison Slider (constrained size) */}
-            <div className="relative w-full max-w-[520px] mx-auto overflow-hidden rounded-lg border border-[var(--color-border)] aspect-square bg-[var(--color-bg)]">
+            <div
+                ref={sliderContainerRef}
+                className="relative w-full max-w-[520px] mx-auto overflow-hidden rounded-lg border border-[var(--color-border)] aspect-square bg-[var(--color-bg)]"
+                tabIndex={0}
+                role="slider"
+                aria-label="Stain normalization comparison"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(sliderPosition)}
+                onKeyDown={(e) => {
+                    if (e.key === "ArrowLeft") {
+                        e.preventDefault();
+                        moveSliderBy(-2);
+                    }
+                    if (e.key === "ArrowRight") {
+                        e.preventDefault();
+                        moveSliderBy(2);
+                    }
+                    if (e.key.toLowerCase() === "r") {
+                        e.preventDefault();
+                        setSliderPosition(50);
+                    }
+                }}
+            >
                 {/* Normalized Image (Background) */}
                 <img
                     src={`data:image/png;base64,${normalizedImageBase64}`}
@@ -50,10 +80,11 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
                     onDrag={(_, info) => {
-                        const container = document.querySelector("[data-slider-container]") as HTMLElement;
+                        const container = sliderContainerRef.current;
                         if (container) {
-                            const newPosition = ((info.offset.x + container.clientWidth / 2) / container.clientWidth) * 100;
-                            setSliderPosition(Math.max(0, Math.min(100, newPosition)));
+                            const rect = container.getBoundingClientRect();
+                            const newPosition = ((info.point.x - rect.left) / Math.max(1, rect.width)) * 100;
+                            setSliderPosition(clamp(newPosition));
                         }
                     }}
                     style={{ left: `${sliderPosition}%` }}
@@ -70,15 +101,24 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 </motion.div>
 
                 {/* Labels */}
-                <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-semibold">
+                <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[var(--color-bg-elevated)]/80 text-[var(--color-fg)] text-xs font-semibold border border-[var(--color-border)]">
                     Original
                 </div>
-                <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-semibold">
+                <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--color-bg-elevated)]/80 text-[var(--color-fg)] text-xs font-semibold border border-[var(--color-border)]">
                     Normalized
                 </div>
             </div>
 
-            <div data-slider-container className="hidden" />
+            <div className="flex items-center justify-between">
+                <p className="text-xs text-muted">Keyboard: ← / → to move, R to reset</p>
+                <button
+                    type="button"
+                    onClick={() => setSliderPosition(50)}
+                    className="px-3 py-1.5 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)]"
+                >
+                    Reset Slider
+                </button>
+            </div>
 
             {/* Benefits */}
             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-[var(--color-border)]">

@@ -7,7 +7,8 @@ import HeatmapOverlay from "@/components/HeatmapOverlay";
 export default function ClassificationResult({ result, originalImage }: { result: PredictResponse, originalImage?: string }) {
     const entries = Object.entries(result.probabilities || {}).sort((a, b) => b[1] - a[1]);
     const top3 = entries.slice(0, 3);
-    const maxProb = Math.max(...entries.map(([, p]) => p));
+    const maxProb = entries.length ? Math.max(...entries.map(([, p]) => p)) : 1;
+    const topConfidence = entries.length ? entries[0][1] * 100 : 0;
 
     const getRiskLevel = (className: string) => {
         const highRisk = ['Dyskeratotic', 'Koilocytotic'];
@@ -15,6 +16,27 @@ export default function ClassificationResult({ result, originalImage }: { result
     };
 
     const riskLevel = getRiskLevel(result.predicted_class);
+
+    const getConfidenceBadge = (confidencePct: number) => {
+        if (confidencePct >= 85) {
+            return {
+                label: "High Confidence",
+                classes: "border-emerald-500/60 bg-emerald-500/10 text-emerald-300",
+            };
+        }
+        if (confidencePct >= 65) {
+            return {
+                label: "Moderate Confidence",
+                classes: "border-amber-500/60 bg-amber-500/10 text-amber-300",
+            };
+        }
+        return {
+            label: "Low Confidence",
+            classes: "border-red-500/60 bg-red-500/10 text-red-300",
+        };
+    };
+
+    const confidenceBadge = getConfidenceBadge(topConfidence);
 
     return (
         <motion.div
@@ -70,7 +92,10 @@ export default function ClassificationResult({ result, originalImage }: { result
                     />
                     <div className="flex flex-col">
                         <span className="text-lg font-bold">{result.predicted_class}</span>
-                        <span className="text-xs text-muted">Confidence: {(entries[0][1] * 100).toFixed(2)}%</span>
+                        <span className="text-xs text-muted">Confidence: {topConfidence.toFixed(2)}%</span>
+                        <span className={`inline-flex mt-1 w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${confidenceBadge.classes}`}>
+                            {confidenceBadge.label}
+                        </span>
                     </div>
                 </motion.div>
             </div>
@@ -123,7 +148,7 @@ export default function ClassificationResult({ result, originalImage }: { result
                                 />
                                 {idx === 0 && (
                                     <motion.div
-                                        className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                        className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[hsl(var(--theme-hue)_40%_90%_/_0.25)] to-transparent"
                                         animate={{ x: ["-100%", "400%"] }}
                                         transition={{ duration: 2, repeat: Infinity, ease: "linear", delay: 1 }}
                                     />
@@ -272,13 +297,13 @@ export default function ClassificationResult({ result, originalImage }: { result
                             </h5>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                 {result.segmentation_metrics.num_cells !== undefined && (
-                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                    <div className="bg-[var(--color-bg-elevated)]/70 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
                                         <div className="text-xs text-muted mb-1">Cells Detected</div>
                                         <div className="text-lg font-bold">{result.segmentation_metrics.num_cells}</div>
                                     </div>
                                 )}
                                 {result.segmentation_metrics.nucleus_ratio !== undefined && (
-                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                    <div className="bg-[var(--color-bg-elevated)]/70 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
                                         <div className="text-xs text-muted mb-1">Nuclear Area</div>
                                         <div className="text-lg font-bold text-red-400">
                                             {(result.segmentation_metrics.nucleus_ratio * 100).toFixed(1)}%
@@ -286,7 +311,7 @@ export default function ClassificationResult({ result, originalImage }: { result
                                     </div>
                                 )}
                                 {result.segmentation_metrics.cytoplasm_ratio !== undefined && (
-                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                    <div className="bg-[var(--color-bg-elevated)]/70 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
                                         <div className="text-xs text-muted mb-1">Cytoplasmic Area</div>
                                         <div className="text-lg font-bold text-green-400">
                                             {(result.segmentation_metrics.cytoplasm_ratio * 100).toFixed(1)}%
@@ -294,7 +319,7 @@ export default function ClassificationResult({ result, originalImage }: { result
                                     </div>
                                 )}
                                 {result.segmentation_metrics.nucleus_ratio && result.segmentation_metrics.cytoplasm_ratio && (
-                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                    <div className="bg-[var(--color-bg-elevated)]/70 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
                                         <div className="text-xs text-muted mb-1">N/C Ratio</div>
                                         <div className="text-lg font-bold text-yellow-400">
                                             {(result.segmentation_metrics.nucleus_ratio / (result.segmentation_metrics.cytoplasm_ratio + 0.001)).toFixed(2)}
@@ -302,7 +327,7 @@ export default function ClassificationResult({ result, originalImage }: { result
                                     </div>
                                 )}
                                 {result.segmentation_metrics.coverage_ratio !== undefined && (
-                                    <div className="bg-background/50 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
+                                    <div className="bg-[var(--color-bg-elevated)]/70 backdrop-blur-sm p-3 rounded-lg border border-[var(--color-border)]">
                                         <div className="text-xs text-muted mb-1">Cell Coverage</div>
                                         <div className="text-lg font-bold">
                                             {(result.segmentation_metrics.coverage_ratio * 100).toFixed(1)}%
