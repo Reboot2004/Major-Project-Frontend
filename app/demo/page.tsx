@@ -543,48 +543,6 @@ export default function DemoPage() {
 
                         {/* Standalone Tools Panel */}
                         <AdvancedToolsPanel />
-
-                        {/* Divider */}
-                        {result && (
-                            <div className="flex items-center gap-4 py-4">
-                                <div className="flex-1 h-px bg-[var(--color-border)]" />
-                                <p className="text-sm text-muted font-semibold">Full Analysis Results</p>
-                                <div className="flex-1 h-px bg-[var(--color-border)]" />
-                            </div>
-                        )}
-
-                        {/* Full Analysis Results from Main Upload */}
-                        {result && preview ? (
-                            <div className="space-y-6">
-                                {/* Clinical Decision Support - Show First */}
-                                {result.clinical_decision && (
-                                    <ClinicalDecisionSupport
-                                        decision={result.clinical_decision}
-                                        confidence={result.uncertainty?.confidence}
-                                    />
-                                )}
-
-                                {/* Uncertainty Metrics */}
-                                {result.uncertainty && (
-                                    <UncertaintyDisplay uncertainty={result.uncertainty} />
-                                )}
-
-                                {/* Advanced XAI Visualization */}
-                                {preview && (result.xai_scorecam_base64 || result.xai_layercam_base64) && (
-                                    <AdvancedXAIVisualization
-                                        originalImageBase64={preview.split(",")[1] || preview}
-                                        scoreCAMBase64={result.xai_scorecam_base64}
-                                        layerCAMBase64={result.xai_layercam_base64}
-                                    />
-                                )}
-
-                            </div>
-                        ) : result && !preview ? (
-                            <div className="text-center py-12 space-y-4">
-                                <div className="text-6xl opacity-20">...</div>
-                                <p className="text-muted">Advanced analysis requires image preview</p>
-                            </div>
-                        ) : null}
                     </motion.div>
                 )}
 

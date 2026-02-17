@@ -29,9 +29,9 @@
 
 [data-theme="light"] {
     --theme-mode: light;
-    --color-bg: hsl(var(--theme-hue), 40%, 95%);
-    --color-bg-alt: hsl(var(--theme-hue), 34%, 90%);
-    --color-bg-elevated: hsl(var(--theme-hue), 36%, 92%);
+    --color-bg: hsl(var(--theme-hue), 38%, 93%);
+    --color-bg-alt: hsl(var(--theme-hue), 33%, 88%);
+    --color-bg-elevated: hsl(var(--theme-hue), 35%, 90%);
     --color-fg: hsl(var(--theme-hue), 22%, 14%);
     --color-fg-muted: hsl(var(--theme-hue), 12%, 48%);
     --color-border: hsl(var(--theme-hue), 25%, 72%);
@@ -93,9 +93,9 @@ body::before {
 
 [data-theme="light"] body::before {
     background:
-        radial-gradient(circle at top left, hsl(var(--theme-hue) 78% 94% / 0.95), transparent 52%),
-        radial-gradient(circle at 85% 12%, hsl(var(--theme-hue) 62% 90% / 0.65), transparent 48%),
-        linear-gradient(160deg, hsl(var(--theme-hue) 52% 93% / 1), hsl(var(--theme-hue) 30% 90% / 1));
+    radial-gradient(circle at top left, hsl(var(--theme-hue) 76% 91% / 0.94), transparent 50%),
+    radial-gradient(circle at 85% 12%, hsl(var(--theme-hue) 58% 86% / 0.62), transparent 46%),
+    linear-gradient(160deg, hsl(var(--theme-hue) 48% 90% / 1), hsl(var(--theme-hue) 28% 86% / 1));
 }
 
 body::after {

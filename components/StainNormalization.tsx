@@ -15,7 +15,6 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
     const isDraggingRef = useRef(false);
 
     const clamp = (value: number) => Math.max(0, Math.min(100, value));
-    const moveSliderBy = (delta: number) => setSliderPosition((prev) => clamp(prev + delta));
 
     const updateSliderFromClientX = (clientX: number) => {
         const container = sliderContainerRef.current;
@@ -71,20 +70,6 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 onPointerCancel={() => {
                     isDraggingRef.current = false;
                 }}
-                onKeyDown={(e) => {
-                    if (e.key === "ArrowLeft") {
-                        e.preventDefault();
-                        moveSliderBy(-2);
-                    }
-                    if (e.key === "ArrowRight") {
-                        e.preventDefault();
-                        moveSliderBy(2);
-                    }
-                    if (e.key.toLowerCase() === "r") {
-                        e.preventDefault();
-                        setSliderPosition(50);
-                    }
-                }}
             >
                 {/* Normalized Image (Background) */}
                 <img
@@ -131,17 +116,6 @@ export default function StainNormalizationViewer({ originalImageBase64, normaliz
                 <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--color-bg-elevated)]/80 text-[var(--color-fg)] text-xs font-semibold border border-[var(--color-border)]">
                     Normalized
                 </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-                <p className="text-xs text-muted">Keyboard: ← / → to move, R to reset</p>
-                <button
-                    type="button"
-                    onClick={() => setSliderPosition(50)}
-                    className="px-3 py-1.5 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)]"
-                >
-                    Reset Slider
-                </button>
             </div>
 
             {/* Benefits */}
