@@ -35,7 +35,7 @@ export default function AdvancedXAIVisualization({
         if (onFocusModeChange) {
             onFocusModeChange(true);
         } else {
-            setFocusMode(true);
+            setFocusModeState(true);
         }
     };
 
