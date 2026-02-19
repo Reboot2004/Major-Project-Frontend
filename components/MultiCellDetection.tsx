@@ -73,11 +73,14 @@ export default function MultiCellDetection({ detection }: Props) {
             {/* Image with bounding boxes */}
             {detection.image_with_boxes_base64 && (
                 <div className="space-y-2">
-                    <p className="text-xs font-semibold text-muted uppercase">Detected Regions</p>
+                    <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-muted uppercase">Detected Regions</p>
+                        <p className="text-[11px] text-muted">Top labels shown to keep view readable</p>
+                    </div>
                     <img
                         src={`data:image/png;base64,${detection.image_with_boxes_base64}`}
                         alt="Cells with boxes"
-                        className="w-full rounded-lg border border-[var(--color-border)]"
+                        className="w-full max-h-[460px] object-contain bg-[var(--color-bg)] p-2 rounded-lg border border-[var(--color-border)]"
                     />
                 </div>
             )}
