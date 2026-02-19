@@ -45,7 +45,7 @@ export default function AdvancedXAIVisualization({
         >
             <div>
                 <h3 className="text-xl font-bold">Explainable AI (XAI) Visualization</h3>
-                <p className="text-sm text-muted mt-1">Interactive activation maps showing model decision regions</p>
+                <p className="text-sm text-muted mt-1">Inspect where the model focused.</p>
             </div>
 
             {/* Controls */}
@@ -248,19 +248,26 @@ export default function AdvancedXAIVisualization({
                 <div className="space-y-3 text-sm text-muted">
                     <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 space-y-1">
                         <p className="font-semibold text-blue-400">Score-CAM</p>
-                        <p>Highlights regions most influential to the classification decision. Warmer colors indicate higher importance to the model's prediction.</p>
+                        <p>Highlights the regions most influential for prediction.</p>
                     </div>
                     <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20 space-y-1">
                         <p className="font-semibold text-purple-400">Layer-CAM</p>
-                        <p>Visualizes gradient-weighted class activation maps from intermediate layers, showing layer-specific decision features.</p>
+                        <p>Shows intermediate feature focus from deeper layers.</p>
                     </div>
                 </div>
+
+                <details className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2">
+                    <summary className="cursor-pointer text-xs font-semibold text-muted">More details</summary>
+                    <p className="text-xs text-muted mt-2">
+                        Warmer colors indicate stronger contribution. Use XAI as interpretability support, not as a standalone clinical decision signal.
+                    </p>
+                </details>
             </div>
 
             {/* Disclaimer */}
             <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
                 <p className="text-xs text-amber-400 font-semibold mb-1">Clinical Note</p>
-                <p className="text-xs text-muted">XAI visualizations are for interpretability and validation. Always combine with clinical expertise and other diagnostic tools for clinical decisions.</p>
+                <p className="text-xs text-muted">Use with clinical review and other findings.</p>
             </div>
         </motion.div>
     );

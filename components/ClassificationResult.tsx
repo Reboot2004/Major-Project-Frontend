@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { toDataUrl, type PredictResponse } from "@/lib/api";
-import HeatmapOverlay from "@/components/HeatmapOverlay";
+import { type PredictResponse } from "@/lib/api";
 
 export default function ClassificationResult({ result, originalImage }: { result: PredictResponse, originalImage?: string }) {
     const entries = Object.entries(result.probabilities || {}).sort((a, b) => b[1] - a[1]);
@@ -158,62 +157,6 @@ export default function ClassificationResult({ result, originalImage }: { result
                     ))}
                 </div>
             </div>
-
-            {(result.xai_scorecam_base64 || result.xai_layercam_base64) && originalImage && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.9 }}
-                    className="relative pt-6 border-t border-[var(--color-border)]"
-                >
-                    <h4 className="text-sm font-semibold text-muted mb-4 uppercase tracking-wider flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Explainability Analysis (XAI)
-                    </h4>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                        >
-                            <div className="text-xs text-muted mb-2 font-medium">Original Image</div>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={originalImage} alt="Original" className="rounded-lg w-full border border-[var(--color-border)] shadow-lg" />
-                        </motion.div>
-                        {result.xai_scorecam_base64 && (
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                <div className="text-xs text-muted mb-2 font-medium">ScoreCAM</div>
-                                <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)] shadow-lg">
-                                    <HeatmapOverlay base64={result.xai_scorecam_base64} backgroundImage={originalImage} />
-                                </div>
-                            </motion.div>
-                        )}
-                        {result.xai_layercam_base64 && (
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                <div className="text-xs text-muted mb-2 font-medium">LayerCAM</div>
-                                <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)] shadow-lg">
-                                    <HeatmapOverlay base64={result.xai_layercam_base64} backgroundImage={originalImage} />
-                                </div>
-                            </motion.div>
-                        )}
-                    </div>
-                    <motion.p
-                        className="text-xs text-muted mt-3 leading-relaxed"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.2 }}
-                    >
-                        The heatmap highlights regions the AI model focused on for its prediction, providing transparency into the decision-making process.
-                    </motion.p>
-                </motion.div>
-            )}
 
             {/* Segmentation Analysis Section */}
             {(result.segmentation_mask_base64 || result.segmentation_overlay_base64) && originalImage && (

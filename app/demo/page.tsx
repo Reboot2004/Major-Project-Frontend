@@ -60,7 +60,7 @@ export default function DemoPage() {
         setReportError(null);
         setReportLoading(true);
         setReportGenerated(false);
-        
+
         try {
             const meta = {
                 patient_id: patientId.trim() || undefined,
@@ -92,11 +92,11 @@ export default function DemoPage() {
             // Handle PDF download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
-            
+
             // Extract filename from response headers or create default
             const contentDisposition = response.headers.get('content-disposition');
             let filename = 'herhealth_analysis_report.pdf';
-            
+
             if (contentDisposition) {
                 const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (filenameMatch && filenameMatch[1]) {
@@ -110,18 +110,18 @@ export default function DemoPage() {
             link.download = filename;
             document.body.appendChild(link);
             link.click();
-            
+
             // Cleanup
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            
+
             // Set success state
             setReportGenerated(true);
-            setReport({ 
+            setReport({
                 analysis_date: meta.analysis_date,
                 patient_id: meta.patient_id || "Anonymous"
             } as AnalysisReport);
-            
+
         } catch (error) {
             console.error("Failed to generate PDF report:", error);
             setReportError("Failed to generate PDF report. Please try again.");
@@ -367,6 +367,34 @@ export default function DemoPage() {
                                     </div>
                                 </motion.div>
 
+                                <motion.div
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="card"
+                                >
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <p className="text-sm font-semibold">Summary</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full md:w-auto">
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-[11px] text-muted">Class</p>
+                                                <p className="text-sm font-semibold">{result.predicted_class}</p>
+                                            </div>
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-[11px] text-muted">Risk</p>
+                                                <p className="text-sm font-semibold">{result.clinical_decision?.risk_level ?? "N/A"}</p>
+                                            </div>
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-[11px] text-muted">Cells</p>
+                                                <p className="text-sm font-semibold">{result.preprocessing?.cells_detected ?? "N/A"}</p>
+                                            </div>
+                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
+                                                <p className="text-[11px] text-muted">Time</p>
+                                                <p className="text-sm font-semibold">{result.processing_time_ms ?? "N/A"}ms</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
                                 {/* Preprocessing Summary (Top Priority) */}
                                 {result.preprocessing && (
                                     <motion.div
@@ -432,6 +460,10 @@ export default function DemoPage() {
                                 })()}
 
                                 {/* Primary Results */}
+                                <div className="space-y-1">
+                                    <p className="text-sm font-semibold">Diagnosis & Visual Analysis</p>
+                                    <p className="text-xs text-muted">Classification and segmentation on the left, interactive XAI on the right.</p>
+                                </div>
                                 <div className="grid lg:grid-cols-2 gap-6">
                                     <ClassificationResult result={result} originalImage={preview} />
                                     {preview && (result.xai_scorecam_base64 || result.xai_layercam_base64) && (
