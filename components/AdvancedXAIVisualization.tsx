@@ -41,7 +41,7 @@ export default function AdvancedXAIVisualization({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="card space-y-6"
+            className="card h-full space-y-6"
         >
             <div>
                 <h3 className="text-xl font-bold">Explainable AI (XAI) Visualization</h3>

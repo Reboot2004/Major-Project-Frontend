@@ -464,7 +464,7 @@ export default function DemoPage() {
                                     <p className="text-sm font-semibold">Diagnosis & Visual Analysis</p>
                                     <p className="text-xs text-muted">Classification and segmentation on the left, interactive XAI on the right.</p>
                                 </div>
-                                <div className="grid lg:grid-cols-2 gap-6">
+                                <div className="grid lg:grid-cols-2 gap-6 items-stretch">
                                     <ClassificationResult result={result} originalImage={preview} />
                                     {preview && (result.xai_scorecam_base64 || result.xai_layercam_base64) && (
                                         <AdvancedXAIVisualization

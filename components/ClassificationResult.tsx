@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { type PredictResponse } from "@/lib/api";
 
@@ -36,10 +37,13 @@ export default function ClassificationResult({ result, originalImage }: { result
     };
 
     const confidenceBadge = getConfidenceBadge(topConfidence);
+    const [segMode, setSegMode] = useState<"overlay" | "mask" | "original">("overlay");
+    const [segOpacity, setSegOpacity] = useState(70);
+    const [showSegComparison, setShowSegComparison] = useState(false);
 
     return (
         <motion.div
-            className="card space-y-8 overflow-hidden relative"
+            className="card h-full space-y-8 overflow-hidden relative"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -173,55 +177,110 @@ export default function ClassificationResult({ result, originalImage }: { result
                         Attention U-Net Segmentation
                     </h4>
 
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                        >
-                            <div className="text-xs text-muted mb-2 font-medium">Original Image</div>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={originalImage} alt="Original for segmentation" className="rounded-lg w-full border border-[var(--color-border)] shadow-lg" />
-                        </motion.div>
-
-                        {result.segmentation_mask_base64 && (
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                <div className="text-xs text-muted mb-2 font-medium flex items-center gap-2">
-                                    Segmentation Mask
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[10px] border border-red-500/20">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                        Nucleus
-                                    </span>
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-[10px] border border-green-500/20">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                        Cytoplasm
-                                    </span>
+                    {result.segmentation_mask_base64 && (
+                        <div className="space-y-4 p-4 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)]">
+                            <div className="space-y-2">
+                                <p className="text-sm font-semibold">Segmentation View</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: "overlay", label: "Overlay" },
+                                        { id: "mask", label: "Mask" },
+                                        { id: "original", label: "Original" },
+                                    ].map((view) => (
+                                        <button
+                                            key={view.id}
+                                            onClick={() => setSegMode(view.id as "overlay" | "mask" | "original")}
+                                            className={`p-2 rounded-lg text-xs font-semibold transition-all ${segMode === view.id
+                                                ? "bg-accent text-[var(--color-fg)]"
+                                                : "bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)]"
+                                                }`}
+                                        >
+                                            {view.label}
+                                        </button>
+                                    ))}
                                 </div>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={`data:image/png;base64,${result.segmentation_mask_base64}`}
-                                    alt="Segmentation Mask"
-                                    className="rounded-lg w-full border border-[var(--color-border)] shadow-lg"
-                                />
-                            </motion.div>
-                        )}
+                            </div>
 
-                        {result.segmentation_overlay_base64 && (
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                <div className="text-xs text-muted mb-2 font-medium">Blended Overlay</div>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={`data:image/png;base64,${result.segmentation_overlay_base64}`}
-                                    alt="Segmentation Overlay"
-                                    className="rounded-lg w-full border border-[var(--color-border)] shadow-lg"
+                            <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-semibold">Mask Opacity</p>
+                                    <span className="text-sm font-mono font-bold text-accent">{segOpacity}%</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={segOpacity}
+                                    onChange={(event) => setSegOpacity(Number(event.target.value))}
+                                    className="w-full h-2 bg-[var(--color-border)] rounded-lg appearance-none cursor-pointer"
                                 />
-                            </motion.div>
-                        )}
+                            </div>
+
+                            <div className="border-t border-[var(--color-border)] pt-4">
+                                <button
+                                    onClick={() => setShowSegComparison((current) => !current)}
+                                    className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-sm font-semibold text-green-400 hover:from-green-500/30 hover:to-emerald-500/30 transition-all"
+                                >
+                                    {showSegComparison ? "Hide" : "Show"} Side-by-Side Comparison
+                                </button>
+                            </div>
+
+                            {!showSegComparison && (
+                                <div className="space-y-2">
+                                    <p className="text-xs font-semibold text-muted uppercase">Interactive Segmentation Overlay</p>
+                                    <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={originalImage}
+                                            alt="Original"
+                                            className={`absolute inset-0 w-full h-full object-cover ${segMode === "mask" ? "opacity-0" : "opacity-100"}`}
+                                        />
+
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={`data:image/png;base64,${result.segmentation_mask_base64}`}
+                                            alt="Segmentation Mask"
+                                            className={`absolute inset-0 w-full h-full object-cover ${segMode === "original" ? "opacity-0" : "opacity-100"}`}
+                                            style={{ opacity: segMode === "overlay" ? segOpacity / 100 : segMode === "mask" ? 1 : 0 }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {showSegComparison && (
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border)]">
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-muted">Original</p>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={originalImage}
+                                            alt="Original"
+                                            className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-muted">Segmentation Mask</p>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={`data:image/png;base64,${result.segmentation_mask_base64}`}
+                                            alt="Segmentation Mask"
+                                            className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-2 mt-4">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[10px] border border-red-500/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                            Nucleus
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 text-[10px] border border-green-500/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            Cytoplasm
+                        </span>
                     </div>
 
                     {/* Segmentation Metrics */}
