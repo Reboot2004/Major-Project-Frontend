@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { type PredictResponse } from "@/lib/api";
 
-export default function ClassificationResult({ result, originalImage }: { result: PredictResponse, originalImage?: string }) {
+interface ClassificationResultProps {
+    result: PredictResponse;
+    originalImage?: string;
+    focusMode?: boolean;
+    onFocusModeChange?: (value: boolean) => void;
+}
+
+export default function ClassificationResult({ result, originalImage, focusMode: externalFocusMode, onFocusModeChange }: ClassificationResultProps) {
     const entries = Object.entries(result.probabilities || {}).sort((a, b) => b[1] - a[1]);
     const top3 = entries.slice(0, 3);
     const maxProb = entries.length ? Math.max(...entries.map(([, p]) => p)) : 1;
@@ -40,6 +47,34 @@ export default function ClassificationResult({ result, originalImage }: { result
     const [segMode, setSegMode] = useState<"overlay" | "mask" | "original">("overlay");
     const [segOpacity, setSegOpacity] = useState(70);
     const [showSegComparison, setShowSegComparison] = useState(false);
+    const [segFocusMode, setSegFocusMode] = useState(true);
+    const effectiveSegFocusMode = externalFocusMode ?? segFocusMode;
+    const setEffectiveSegFocusMode = (value: boolean) => {
+        if (onFocusModeChange) {
+            onFocusModeChange(value);
+        } else {
+            setSegFocusMode(value);
+        }
+    };
+    const resetSegmentationView = () => {
+        setSegMode("overlay");
+        setSegOpacity(70);
+        setShowSegComparison(false);
+        setEffectiveSegFocusMode(true);
+    };
+
+    useEffect(() => {
+        const saved = window.localStorage.getItem("seg-focus-mode");
+        if (saved === "true" || saved === "false") {
+            setSegFocusMode(saved === "true");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof externalFocusMode === "undefined") {
+            window.localStorage.setItem("seg-focus-mode", String(segFocusMode));
+        }
+    }, [externalFocusMode, segFocusMode]);
 
     return (
         <motion.div
@@ -216,19 +251,36 @@ export default function ClassificationResult({ result, originalImage }: { result
                                 />
                             </div>
 
-                            <div className="border-t border-[var(--color-border)] pt-4">
+                            <div className="border-t border-[var(--color-border)] pt-4 space-y-2">
                                 <button
                                     onClick={() => setShowSegComparison((current) => !current)}
                                     className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-sm font-semibold text-green-400 hover:from-green-500/30 hover:to-emerald-500/30 transition-all"
                                 >
                                     {showSegComparison ? "Hide" : "Show"} Side-by-Side Comparison
                                 </button>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setEffectiveSegFocusMode(!effectiveSegFocusMode)}
+                                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${effectiveSegFocusMode
+                                            ? "bg-accent text-[var(--color-fg)]"
+                                            : "bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)]"
+                                            }`}
+                                    >
+                                        {effectiveSegFocusMode ? "Exit Focus" : "Focus Mode"}
+                                    </button>
+                                    <button
+                                        onClick={resetSegmentationView}
+                                        className="px-3 py-2 rounded-lg text-xs font-semibold bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)] transition-all"
+                                    >
+                                        Reset View
+                                    </button>
+                                </div>
                             </div>
 
                             {!showSegComparison && (
                                 <div className="space-y-2">
                                     <p className="text-xs font-semibold text-muted uppercase">Interactive Segmentation Overlay</p>
-                                    <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
+                                    <div className={`relative w-full rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg-elevated)] ${effectiveSegFocusMode ? "aspect-[4/3]" : "aspect-square"}`}>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={originalImage}
@@ -248,14 +300,14 @@ export default function ClassificationResult({ result, originalImage }: { result
                             )}
 
                             {showSegComparison && (
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border)]">
+                                <div className={`grid gap-4 pt-4 border-t border-[var(--color-border)] ${effectiveSegFocusMode ? "grid-cols-1" : "grid-cols-2"}`}>
                                     <div className="space-y-2">
                                         <p className="text-xs text-muted">Original</p>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={originalImage}
                                             alt="Original"
-                                            className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                            className={`w-full rounded-lg border border-[var(--color-border)] object-cover ${effectiveSegFocusMode ? "aspect-[4/3]" : "aspect-square"}`}
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -264,7 +316,7 @@ export default function ClassificationResult({ result, originalImage }: { result
                                         <img
                                             src={`data:image/png;base64,${result.segmentation_mask_base64}`}
                                             alt="Segmentation Mask"
-                                            className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                            className={`w-full rounded-lg border border-[var(--color-border)] object-cover ${effectiveSegFocusMode ? "aspect-[4/3]" : "aspect-square"}`}
                                         />
                                     </div>
                                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ImageUploader from "@/components/ImageUploader";
 import ClassificationResult from "@/components/ClassificationResult";
@@ -26,6 +26,24 @@ export default function DemoPage() {
     const [reportLoading, setReportLoading] = useState(false);
     const [reportError, setReportError] = useState<string | null>(null);
     const [reportGenerated, setReportGenerated] = useState(false);
+    const [globalFocusMode, setGlobalFocusMode] = useState(true);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const saved = window.localStorage.getItem("global-focus-mode");
+        if (saved === "true" || saved === "false") {
+            setGlobalFocusMode(saved === "true");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        window.localStorage.setItem("global-focus-mode", String(globalFocusMode));
+    }, [globalFocusMode]);
+
+    const toggleGlobalFocusMode = () => {
+        setGlobalFocusMode((current) => !current);
+    };
 
     const normalizeConfidencePercent = (value?: number) => {
         if (typeof value !== "number" || Number.isNaN(value)) return null;
@@ -395,6 +413,22 @@ export default function DemoPage() {
                                     </div>
                                 </motion.div>
 
+                                <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/60 px-4 py-3">
+                                    <div>
+                                        <p className="text-sm font-semibold">Global Focus Mode</p>
+                                        <p className="text-xs text-muted">Controls both Segmentation and XAI viewers together.</p>
+                                    </div>
+                                    <button
+                                        onClick={toggleGlobalFocusMode}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${globalFocusMode
+                                            ? "bg-accent text-[var(--color-fg)]"
+                                            : "bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)]"
+                                            }`}
+                                    >
+                                        {globalFocusMode ? "On" : "Off"}
+                                    </button>
+                                </div>
+
                                 {/* Preprocessing Summary (Top Priority) */}
                                 {result.preprocessing && (
                                     <motion.div
@@ -465,12 +499,19 @@ export default function DemoPage() {
                                     <p className="text-xs text-muted">Classification and segmentation on the left, interactive XAI on the right.</p>
                                 </div>
                                 <div className="grid lg:grid-cols-2 gap-6 items-stretch">
-                                    <ClassificationResult result={result} originalImage={preview} />
+                                    <ClassificationResult
+                                        result={result}
+                                        originalImage={preview}
+                                        focusMode={globalFocusMode}
+                                        onFocusModeChange={setGlobalFocusMode}
+                                    />
                                     {preview && (result.xai_scorecam_base64 || result.xai_layercam_base64) && (
                                         <AdvancedXAIVisualization
                                             originalImageBase64={preview.split(",")[1] || preview}
                                             scoreCAMBase64={result.xai_scorecam_base64}
                                             layerCAMBase64={result.xai_layercam_base64}
+                                            focusMode={globalFocusMode}
+                                            onFocusModeChange={setGlobalFocusMode}
                                         />
                                     )}
                                 </div>

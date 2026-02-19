@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
     originalImageBase64: string;
     scoreCAMBase64?: string;
     layerCAMBase64?: string;
+    focusMode?: boolean;
+    onFocusModeChange?: (value: boolean) => void;
 }
 
 type HeatmapMode = "overlay" | "masked" | "heatmap_only";
@@ -14,14 +16,51 @@ type HeatmapMode = "overlay" | "masked" | "heatmap_only";
 export default function AdvancedXAIVisualization({
     originalImageBase64,
     scoreCAMBase64,
-    layerCAMBase64
+    layerCAMBase64,
+    focusMode: externalFocusMode,
+    onFocusModeChange,
 }: Props) {
     const [selectedHeatmap, setSelectedHeatmap] = useState<"scorecam" | "layercam">("scorecam");
     const [opacity, setOpacity] = useState(70);
     const [mode, setMode] = useState<HeatmapMode>("overlay");
     const [showComparison, setShowComparison] = useState(false);
+    const [focusModeState, setFocusModeState] = useState(true);
 
     const currentHeatmap = selectedHeatmap === "scorecam" ? scoreCAMBase64 : layerCAMBase64;
+    const resetView = () => {
+        setSelectedHeatmap(scoreCAMBase64 ? "scorecam" : "layercam");
+        setMode("overlay");
+        setOpacity(70);
+        setShowComparison(false);
+        if (onFocusModeChange) {
+            onFocusModeChange(true);
+        } else {
+            setFocusMode(true);
+        }
+    };
+
+    const effectiveFocusMode = externalFocusMode ?? focusModeState;
+
+    const setEffectiveFocusMode = (value: boolean) => {
+        if (onFocusModeChange) {
+            onFocusModeChange(value);
+        } else {
+            setFocusModeState(value);
+        }
+    };
+
+    useEffect(() => {
+        const saved = window.localStorage.getItem("xai-focus-mode");
+        if (saved === "true" || saved === "false") {
+            setFocusModeState(saved === "true");
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof externalFocusMode === "undefined") {
+            window.localStorage.setItem("xai-focus-mode", String(focusModeState));
+        }
+    }, [externalFocusMode, focusModeState]);
 
     if (!scoreCAMBase64 && !layerCAMBase64) {
         return (
@@ -132,7 +171,7 @@ export default function AdvancedXAIVisualization({
                 </div>
 
                 {/* Comparison Toggle */}
-                <div className="border-t border-[var(--color-border)] pt-4">
+                <div className="border-t border-[var(--color-border)] pt-4 space-y-2">
                     <motion.button
                         onClick={() => setShowComparison(!showComparison)}
                         whileHover={{ scale: 1.02 }}
@@ -141,6 +180,23 @@ export default function AdvancedXAIVisualization({
                     >
                         {showComparison ? "Hide" : "Show"} Side-by-Side Comparison
                     </motion.button>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            onClick={() => setEffectiveFocusMode(!effectiveFocusMode)}
+                            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${effectiveFocusMode
+                                ? "bg-accent text-[var(--color-fg)]"
+                                : "bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)]"
+                                }`}
+                        >
+                            {effectiveFocusMode ? "Exit Focus" : "Focus Mode"}
+                        </button>
+                        <button
+                            onClick={resetView}
+                            className="px-3 py-2 rounded-lg text-xs font-semibold bg-[var(--color-border)] text-muted hover:text-[var(--color-fg)] transition-all"
+                        >
+                            Reset View
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -154,7 +210,7 @@ export default function AdvancedXAIVisualization({
                     <p className="text-xs font-semibold text-muted uppercase">
                         {selectedHeatmap === "scorecam" ? "Score-CAM Activation Map" : "Layer-CAM Activation Map"}
                     </p>
-                    <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg)]">
+                    <div className={`relative w-full rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg)] ${effectiveFocusMode ? "aspect-[4/3]" : "aspect-square"}`}>
                         {/* Base image */}
                         <img
                             src={`data:image/png;base64,${originalImageBase64}`}
@@ -191,14 +247,14 @@ export default function AdvancedXAIVisualization({
                         className="space-y-4 pt-4 border-t border-[var(--color-border)]"
                     >
                         <p className="text-xs font-semibold text-muted uppercase">Side-by-Side Comparison</p>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className={`grid gap-4 ${effectiveFocusMode ? "grid-cols-1" : "grid-cols-2"}`}>
                             {/* Original */}
                             <div className="space-y-2">
                                 <p className="text-xs text-muted">Original Image</p>
                                 <img
                                     src={`data:image/png;base64,${originalImageBase64}`}
                                     alt="Original"
-                                    className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                    className={`w-full rounded-lg border border-[var(--color-border)] object-cover ${effectiveFocusMode ? "aspect-[4/3]" : "aspect-square"}`}
                                 />
                             </div>
 
@@ -211,33 +267,12 @@ export default function AdvancedXAIVisualization({
                                     <img
                                         src={`data:image/png;base64,${currentHeatmap}`}
                                         alt="Heatmap"
-                                        className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
+                                        className={`w-full rounded-lg border border-[var(--color-border)] object-cover ${effectiveFocusMode ? "aspect-[4/3]" : "aspect-square"}`}
                                     />
                                 </div>
                             )}
                         </div>
 
-                        {/* Show both heatmaps if available */}
-                        {scoreCAMBase64 && layerCAMBase64 && selectedHeatmap === "scorecam" && (
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--color-border)]">
-                                <div className="space-y-2">
-                                    <p className="text-xs text-muted">Score-CAM</p>
-                                    <img
-                                        src={`data:image/png;base64,${scoreCAMBase64}`}
-                                        alt="Score-CAM"
-                                        className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-xs text-muted">Layer-CAM</p>
-                                    <img
-                                        src={`data:image/png;base64,${layerCAMBase64}`}
-                                        alt="Layer-CAM"
-                                        className="w-full aspect-square rounded-lg border border-[var(--color-border)] object-cover"
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
