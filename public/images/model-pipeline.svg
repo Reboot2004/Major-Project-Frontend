@@ -1,30 +1,80 @@
 <svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+  <title>AI model pipeline</title>
+  <desc>Pipeline from image input through ConvNeXt and Attention U-Net into explainable outputs.</desc>
+
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0B1120"/>
-      <stop offset="100%" stop-color="#111827"/>
+      <stop offset="0%" stop-color="#0B132B" />
+      <stop offset="100%" stop-color="#101B36" />
     </linearGradient>
-    <linearGradient id="node" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#22D3EE"/>
-      <stop offset="100%" stop-color="#6366F1"/>
+
+    <linearGradient id="cardA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#2F80ED" stop-opacity="0.95" />
     </linearGradient>
+
+    <linearGradient id="cardB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#6366F1" stop-opacity="0.95" />
+    </linearGradient>
+
+    <linearGradient id="cardC" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0.95" />
+    </linearGradient>
+
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="800" height="520" fill="url(#bg)"/>
-  <g fill="url(#node)">
-    <rect x="80" y="140" width="160" height="80" rx="16"/>
-    <rect x="320" y="80" width="170" height="80" rx="16"/>
-    <rect x="320" y="260" width="170" height="80" rx="16"/>
-    <rect x="570" y="170" width="150" height="80" rx="16"/>
+
+  <rect width="800" height="520" fill="url(#bg)" />
+
+  <g fill="#9AD1FF" fill-opacity="0.09">
+    <circle cx="120" cy="430" r="120" />
+    <circle cx="710" cy="95" r="100" />
   </g>
-  <g stroke="#E5E7EB" stroke-width="4" stroke-linecap="round">
-    <path d="M240 180 H320"/>
-    <path d="M405 160 V260"/>
-    <path d="M490 200 H570"/>
+
+  <g stroke="#6EE7FF" stroke-opacity="0.45" stroke-width="4" stroke-linecap="round" fill="none" filter="url(#glow)">
+    <path d="M230 180 H305" />
+    <path d="M230 340 H305" />
+    <path d="M500 260 H580" />
+    <path d="M402 200 V300" stroke-opacity="0.3" />
   </g>
-  <g fill="#E5E7EB" font-family="Arial, sans-serif" font-size="22" text-anchor="middle">
-    <text x="160" y="190">Input</text>
-    <text x="405" y="130">ConvNeXt</text>
-    <text x="405" y="310">Attention U-Net</text>
-    <text x="645" y="220">Outputs</text>
+
+  <g>
+    <rect x="70" y="130" width="160" height="90" rx="18" fill="url(#cardA)" />
+    <rect x="70" y="290" width="160" height="90" rx="18" fill="url(#cardA)" />
+
+    <rect x="305" y="90" width="195" height="110" rx="20" fill="url(#cardB)" />
+    <rect x="305" y="245" width="195" height="110" rx="20" fill="url(#cardB)" />
+
+    <rect x="580" y="170" width="165" height="170" rx="20" fill="url(#cardC)" />
+  </g>
+
+  <g fill="#F8FBFF" font-family="Arial, sans-serif" text-anchor="middle">
+    <text x="150" y="170" font-size="16" font-weight="700">INPUT IMAGE</text>
+    <text x="150" y="192" font-size="13" fill-opacity="0.9">Cell microscopy</text>
+
+    <text x="150" y="330" font-size="16" font-weight="700">PREPROCESS</text>
+    <text x="150" y="352" font-size="13" fill-opacity="0.9">Resize, normalize</text>
+
+    <text x="402" y="136" font-size="19" font-weight="700">CONVNEXT</text>
+    <text x="402" y="160" font-size="13" fill-opacity="0.9">Cell-type classification</text>
+
+    <text x="402" y="292" font-size="19" font-weight="700">ATTENTION U-NET</text>
+    <text x="402" y="316" font-size="13" fill-opacity="0.9">Nucleus/cytoplasm masks</text>
+
+    <text x="663" y="215" font-size="18" font-weight="700">FUSED OUTPUT</text>
+    <text x="663" y="244" font-size="13" fill-opacity="0.9">Class score + mask + XAI</text>
+    <text x="663" y="268" font-size="13" fill-opacity="0.9">Clinical-ready report</text>
+  </g>
+
+  <g fill="#CFFAFE" font-family="Arial, sans-serif" font-size="18" letter-spacing="2">
+    <text x="34" y="42" fill-opacity="0.78">MODEL PIPELINE</text>
   </g>
 </svg>

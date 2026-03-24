@@ -1,27 +1,64 @@
 <svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+  <title>XAI heatmap overlay</title>
+  <desc>Explainability heatmap with hotspots and confidence scale over a stylized cell image.</desc>
+
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0B1120"/>
-      <stop offset="100%" stop-color="#0F172A"/>
+      <stop offset="0%" stop-color="#0A1227" />
+      <stop offset="100%" stop-color="#131F3A" />
     </linearGradient>
-    <radialGradient id="hot" cx="50%" cy="45%" r="55%">
-      <stop offset="0%" stop-color="#F97316" stop-opacity="0.95"/>
-      <stop offset="45%" stop-color="#FACC15" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="#1E293B" stop-opacity="0.2"/>
+
+    <radialGradient id="heatCore" cx="46%" cy="42%" r="52%">
+      <stop offset="0%" stop-color="#FF2D55" stop-opacity="0.98" />
+      <stop offset="28%" stop-color="#FF7A18" stop-opacity="0.95" />
+      <stop offset="52%" stop-color="#FFD447" stop-opacity="0.88" />
+      <stop offset="76%" stop-color="#6EE7B7" stop-opacity="0.54" />
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.16" />
     </radialGradient>
+
+    <linearGradient id="scale" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="35%" stop-color="#34D399" />
+      <stop offset="65%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+
+    <filter id="panelShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.38" />
+    </filter>
   </defs>
-  <rect width="800" height="520" fill="url(#bg)"/>
-  <rect x="120" y="80" width="560" height="360" rx="24" fill="#0F172A" stroke="#334155" stroke-width="2"/>
-  <circle cx="400" cy="260" r="150" fill="url(#hot)"/>
-  <circle cx="470" cy="220" r="40" fill="#FDE047" opacity="0.9"/>
-  <circle cx="340" cy="300" r="30" fill="#FB7185" opacity="0.85"/>
-  <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
-    <path d="M120 440 H680"/>
-    <path d="M200 440 V460"/>
-    <path d="M400 440 V460"/>
-    <path d="M600 440 V460"/>
+
+  <rect width="800" height="520" fill="url(#bg)" />
+
+  <g filter="url(#panelShadow)">
+    <rect x="96" y="62" width="608" height="396" rx="24" fill="#0F1A33" stroke="#31496F" stroke-width="2" />
   </g>
-  <g fill="#E5E7EB" font-family="Arial, sans-serif" font-size="18" text-anchor="middle">
-    <text x="400" y="485">Activation Map</text>
+
+  <g>
+    <ellipse cx="398" cy="252" rx="210" ry="148" fill="#1B2B49" />
+    <ellipse cx="398" cy="252" rx="190" ry="132" fill="url(#heatCore)" />
+
+    <circle cx="480" cy="208" r="44" fill="#FFE07A" fill-opacity="0.92" />
+    <circle cx="326" cy="305" r="36" fill="#FF6B9A" fill-opacity="0.88" />
+    <circle cx="430" cy="286" r="24" fill="#FF944D" fill-opacity="0.9" />
+  </g>
+
+  <g stroke="#9BD5FF" stroke-opacity="0.45" fill="none" stroke-width="2">
+    <path d="M118 402 C180 368, 256 360, 324 386" />
+    <path d="M474 382 C546 350, 620 350, 684 392" />
+  </g>
+
+  <g>
+    <rect x="170" y="422" width="460" height="14" rx="7" fill="url(#scale)" />
+    <g fill="#DDEBFF" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">
+      <text x="170" y="452">Low attention</text>
+      <text x="400" y="452">Medium</text>
+      <text x="630" y="452">High attention</text>
+    </g>
+  </g>
+
+  <g fill="#DDEBFF" font-family="Arial, sans-serif" letter-spacing="2">
+    <text x="36" y="42" font-size="18" fill-opacity="0.8">XAI HEATMAP</text>
+    <text x="118" y="95" font-size="13" fill-opacity="0.75">Model focus regions over cellular morphology</text>
   </g>
 </svg>

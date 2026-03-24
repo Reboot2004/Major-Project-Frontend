@@ -1,27 +1,110 @@
 <svg width="800" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+  <title>AI-assisted microscope cell view</title>
+  <desc>A circular microscope viewport showing stained cervical cells with AI focus boxes and heat overlays.</desc>
+
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0F172A"/>
-      <stop offset="100%" stop-color="#111827"/>
+      <stop offset="0%" stop-color="#030A18" />
+      <stop offset="100%" stop-color="#0A1530" />
     </linearGradient>
-    <radialGradient id="cell" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#F472B6" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.6"/>
+
+    <radialGradient id="lensLight" cx="50%" cy="45%" r="52%">
+      <stop offset="0%" stop-color="#194A86" stop-opacity="0.25" />
+      <stop offset="65%" stop-color="#0E2E5B" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
+
+    <radialGradient id="cell1" cx="48%" cy="45%" r="58%">
+      <stop offset="0%" stop-color="#FFD6ED" stop-opacity="0.98" />
+      <stop offset="58%" stop-color="#FF8BC9" stop-opacity="0.86" />
+      <stop offset="100%" stop-color="#A74A8E" stop-opacity="0.58" />
+    </radialGradient>
+
+    <radialGradient id="cell2" cx="50%" cy="46%" r="60%">
+      <stop offset="0%" stop-color="#E9D9FF" stop-opacity="0.98" />
+      <stop offset="58%" stop-color="#B88DFF" stop-opacity="0.84" />
+      <stop offset="100%" stop-color="#6750C1" stop-opacity="0.55" />
+    </radialGradient>
+
+    <radialGradient id="nuc" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#FFEAF5" stop-opacity="0.96" />
+      <stop offset="70%" stop-color="#E998C8" stop-opacity="0.82" />
+      <stop offset="100%" stop-color="#8E4275" stop-opacity="0.64" />
+    </radialGradient>
+
+    <radialGradient id="heat" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF4D6D" stop-opacity="0.5" />
+      <stop offset="40%" stop-color="#FF9F1C" stop-opacity="0.4" />
+      <stop offset="70%" stop-color="#FEE440" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.05" />
+      </feComponentTransfer>
+    </filter>
+
+    <clipPath id="lensClip">
+      <circle cx="400" cy="260" r="215" />
+    </clipPath>
   </defs>
-  <rect width="800" height="520" fill="url(#bg)"/>
-  <g opacity="0.85">
-    <circle cx="220" cy="190" r="70" fill="url(#cell)"/>
-    <circle cx="250" cy="210" r="18" fill="#F9A8D4"/>
-    <circle cx="520" cy="140" r="85" fill="url(#cell)"/>
-    <circle cx="545" cy="170" r="20" fill="#F9A8D4"/>
-    <circle cx="510" cy="360" r="95" fill="url(#cell)"/>
-    <circle cx="535" cy="385" r="22" fill="#F9A8D4"/>
-    <circle cx="190" cy="360" r="60" fill="url(#cell)"/>
-    <circle cx="210" cy="380" r="14" fill="#F9A8D4"/>
+
+  <rect width="800" height="520" fill="url(#bg)" />
+
+  <circle cx="400" cy="260" r="238" fill="#0E1F3D" stroke="#87C2FF" stroke-opacity="0.26" stroke-width="3" />
+  <circle cx="400" cy="260" r="220" fill="#122A4F" stroke="#B8DDFF" stroke-opacity="0.28" stroke-width="1.5" />
+  <circle cx="400" cy="260" r="215" fill="url(#lensLight)" />
+
+  <g clip-path="url(#lensClip)" opacity="0.95">
+    <g transform="translate(285 210) rotate(-10)">
+      <ellipse rx="92" ry="68" fill="url(#cell1)" />
+      <ellipse rx="31" ry="22" fill="url(#nuc)" />
+      <ellipse cx="11" cy="5" rx="11" ry="8" fill="#C764A2" fill-opacity="0.8" />
+    </g>
+
+    <g transform="translate(505 195) rotate(7)">
+      <ellipse rx="105" ry="80" fill="url(#cell2)" />
+      <ellipse rx="35" ry="26" fill="url(#nuc)" />
+      <ellipse cx="-8" cy="8" rx="12" ry="8" fill="#A46DD3" fill-opacity="0.8" />
+    </g>
+
+    <g transform="translate(500 335) rotate(-5)">
+      <ellipse rx="108" ry="84" fill="url(#cell1)" />
+      <ellipse rx="36" ry="28" fill="url(#nuc)" />
+      <ellipse cx="9" cy="9" rx="13" ry="9" fill="#C3609A" fill-opacity="0.8" />
+    </g>
+
+    <g transform="translate(305 345) rotate(11)">
+      <ellipse rx="72" ry="56" fill="url(#cell2)" />
+      <ellipse rx="22" ry="17" fill="url(#nuc)" />
+      <ellipse cx="5" cy="4" rx="8" ry="6" fill="#9769C4" fill-opacity="0.78" />
+    </g>
+
+    <circle cx="495" cy="192" r="74" fill="url(#heat)" />
+    <circle cx="507" cy="332" r="78" fill="url(#heat)" />
   </g>
-  <g stroke="#38BDF8" stroke-opacity="0.35" fill="none">
-    <path d="M40 80 C180 40, 260 60, 340 120"/>
-    <path d="M420 420 C520 380, 640 360, 760 420"/>
+
+  <g stroke="#8FDBFF" stroke-opacity="0.5" fill="none" stroke-width="1.5">
+    <rect x="430" y="135" width="145" height="112" rx="10" />
+    <rect x="420" y="275" width="165" height="122" rx="10" />
   </g>
+
+  <g stroke="#8FDBFF" stroke-opacity="0.32" stroke-width="1.2" fill="none">
+    <line x1="400" y1="64" x2="400" y2="456" />
+    <line x1="204" y1="260" x2="596" y2="260" />
+  </g>
+
+  <g fill="#D9EEFF" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.6">
+    <text x="34" y="38" fill-opacity="0.78">LIVE MICROSCOPY</text>
+    <text x="610" y="38" fill-opacity="0.62">AI-ASSIST MODE</text>
+    <text x="434" y="130" fill-opacity="0.74">ROI 01</text>
+    <text x="424" y="270" fill-opacity="0.74">ROI 02</text>
+  </g>
+
+  <rect width="800" height="520" filter="url(#grain)" />
+
+  <circle cx="400" cy="260" r="260" fill="none" stroke="#000" stroke-opacity="0.65" stroke-width="120" />
 </svg>
