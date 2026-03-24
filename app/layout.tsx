@@ -89,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                                     <span>System Operational</span>
                                 </div>
                                 <span>•</span>
-                                <span>98.5% Accuracy</span>
+                                <span>97.4% Test Accuracy</span>
                                 <span>•</span>
                                 <span>© {new Date().getFullYear()}</span>
                             </div>
@@ -109,7 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             </div>
                         </div>
                         <div className="text-center text-xs text-muted pt-4 border-t border-[var(--color-border)]/40">
-                            Built with Next.js 14, Spring Boot 3, and state-of-the-art deep learning models
+                            Built with Next.js 14, containerized inference services, and state-of-the-art deep learning models
                         </div>
                     </div>
                 </footer>

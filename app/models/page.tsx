@@ -34,7 +34,7 @@ export default function ModelsPage() {
                             <h2 className="text-2xl font-bold">ConvNeXt Classifier</h2>
                             <div className="text-sm text-[var(--color-accent)] font-semibold mt-1">Classification Model</div>
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-semibold">98.5% F1</div>
+                        <div className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-semibold">97.4% Test F1</div>
                     </div>
                     <p className="text-muted leading-relaxed">
                         Modern convolutional architecture that classifies cervical cells into five distinct categories with medical-grade accuracy. ConvNeXt combines the efficiency of transformers with the reliability of CNNs.
@@ -49,15 +49,15 @@ export default function ModelsPage() {
                     </div>
                     <div className="pt-3 border-t border-[var(--color-border)] grid grid-cols-3 gap-4 text-center">
                         <div>
-                            <div className="text-2xl font-bold text-[var(--color-accent)]">98.5%</div>
+                            <div className="text-2xl font-bold text-[var(--color-accent)]">97.4%</div>
                             <div className="text-xs text-muted">F1 Score</div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-[var(--color-accent)]">97.8%</div>
+                            <div className="text-2xl font-bold text-[var(--color-accent)]">97.0%</div>
                             <div className="text-xs text-muted">Precision</div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-[var(--color-accent)]">99.2%</div>
+                            <div className="text-2xl font-bold text-[var(--color-accent)]">97.0%</div>
                             <div className="text-xs text-muted">Recall</div>
                         </div>
                     </div>
@@ -74,7 +74,7 @@ export default function ModelsPage() {
                             <h2 className="text-2xl font-bold">Attention U-Net</h2>
                             <div className="text-sm text-[var(--color-accent)] font-semibold mt-1">Segmentation Model</div>
                         </div>
-                        <div className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold">96.2% IoU</div>
+                        <div className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold">71.2% Mean IoU</div>
                     </div>
                     <p className="text-muted leading-relaxed">
                         Advanced encoder-decoder network with SCSE attention mechanisms for precise segmentation of nucleus and cytoplasm regions. Provides spatial context crucial for accurate diagnosis.
@@ -90,11 +90,11 @@ export default function ModelsPage() {
                     </div>
                     <div className="pt-3 border-t border-[var(--color-border)] grid grid-cols-3 gap-4 text-center">
                         <div>
-                            <div className="text-2xl font-bold text-[var(--color-accent)]">96.2%</div>
+                            <div className="text-2xl font-bold text-[var(--color-accent)]">71.2%</div>
                             <div className="text-xs text-muted">IoU Score</div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-[var(--color-accent)]">97.5%</div>
+                            <div className="text-2xl font-bold text-[var(--color-accent)]">75.8%</div>
                             <div className="text-xs text-muted">Dice Coef</div>
                         </div>
                         <div>
@@ -139,9 +139,9 @@ export default function ModelsPage() {
                 <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
                     {[
                         { label: "Training Images", value: "4,049" },
-                        { label: "Validation Cycles", value: "1,000+" },
-                        { label: "Test Accuracy", value: "98.1%" },
-                        { label: "False Positive Rate", value: "<2%" }
+                        { label: "Test Samples", value: "810" },
+                        { label: "Test Accuracy", value: "97.4%" },
+                        { label: "Macro F1", value: "97.4%" }
                     ].map(item => (
                         <div key={item.label} className="text-center">
                             <div className="text-2xl font-bold text-[var(--color-accent)]">{item.value}</div>

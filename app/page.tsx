@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 export default function HomePage() {
     const highlights = [
         {
-            title: "98.5% Accuracy",
+            title: "97.4% Test Accuracy",
             desc: "State-of-the-art deep learning models trained on extensive datasets",
             icon: (
                 <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
