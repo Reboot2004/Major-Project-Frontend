@@ -6,16 +6,30 @@ import type { MultiCellDetectionResult } from "@/lib/api";
 
 interface Props {
     detection: MultiCellDetectionResult | undefined;
+    onDownloadSelected?: (selectedIndexes: number[]) => void;
+    onDownloadAll?: () => void;
+    onDownloadOverlap?: () => void;
+    onDownloadReportPdf?: () => void;
+    reportLoading?: boolean;
 }
 
-export default function MultiCellDetection({ detection }: Props) {
+export default function MultiCellDetection({
+    detection,
+    onDownloadSelected,
+    onDownloadAll,
+    onDownloadOverlap,
+    onDownloadReportPdf,
+    reportLoading = false,
+}: Props) {
     const [selectedCell, setSelectedCell] = useState<number>(0);
+    const [selectedForDownload, setSelectedForDownload] = useState<Set<string>>(new Set());
 
     const cells = detection?.cells ?? [];
     const totalCells = detection?.total_cells ?? cells.length;
 
     useEffect(() => {
         setSelectedCell(0);
+        setSelectedForDownload(new Set(cells.map((cell) => cell.cell_id)));
     }, [totalCells, cells.length]);
 
     if (!detection || totalCells === 0 || cells.length === 0) {
@@ -39,6 +53,27 @@ export default function MultiCellDetection({ detection }: Props) {
         ? selected.bounding_box.width * selected.bounding_box.height
         : 0;
 
+    const selectedDownloadCount = selectedForDownload.size;
+    const selectedIndexes = cells
+        .map((cell, idx) => ({ cell, idx }))
+        .filter(({ cell }) => selectedForDownload.has(cell.cell_id))
+        .map(({ idx }) => idx);
+
+    const toggleSelectedCell = (cellId: string) => {
+        setSelectedForDownload((prev) => {
+            const next = new Set(prev);
+            if (next.has(cellId)) {
+                next.delete(cellId);
+            } else {
+                next.add(cellId);
+            }
+            return next;
+        });
+    };
+
+    const selectAllCells = () => setSelectedForDownload(new Set(cells.map((cell) => cell.cell_id)));
+    const clearCellSelection = () => setSelectedForDownload(new Set());
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -47,11 +82,70 @@ export default function MultiCellDetection({ detection }: Props) {
         >
             <div className="flex items-start justify-between">
                 <div>
-                    <h3 className="text-xl font-bold">Multi-Cell Detection</h3>
-                    <p className="text-sm text-muted mt-1">Detected cell regions from the uploaded image</p>
+                    <h3 className="text-xl font-bold">Multi-Cell Detection Studio</h3>
+                    <p className="text-sm text-muted mt-1">Review detected cells and download exactly what you need</p>
                 </div>
                 <div className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
                     <p className="text-sm font-bold text-blue-400">{totalCells} cells</p>
+                </div>
+            </div>
+
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-3">
+                <div className="flex flex-wrap items-center gap-2 justify-between">
+                    <p className="text-sm font-semibold">
+                        Selected for download: <span className="text-[var(--color-accent)]">{selectedDownloadCount}</span>
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={selectAllCells}
+                            className="px-3 py-1.5 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)]"
+                        >
+                            Select all
+                        </button>
+                        <button
+                            type="button"
+                            onClick={clearCellSelection}
+                            className="px-3 py-1.5 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)]"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={() => onDownloadSelected?.(selectedIndexes)}
+                        disabled={!onDownloadSelected || selectedIndexes.length === 0}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download selected images (ZIP)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadOverlap}
+                        disabled={!onDownloadOverlap || !detection.image_with_boxes_base64}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download overlap image
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadAll}
+                        disabled={!onDownloadAll}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download all images (ZIP)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadReportPdf}
+                        disabled={!onDownloadReportPdf || reportLoading}
+                        className="px-3 py-2 rounded-md bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {reportLoading ? "Generating PDF..." : "Download PDF report"}
+                    </button>
                 </div>
             </div>
 
@@ -75,7 +169,7 @@ export default function MultiCellDetection({ detection }: Props) {
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-muted uppercase">Detected Regions</p>
-                        <p className="text-[11px] text-muted">Top labels shown to keep view readable</p>
+                        <p className="text-[11px] text-muted">Overlap view with all bounding boxes</p>
                     </div>
                     <img
                         src={`data:image/png;base64,${detection.image_with_boxes_base64}`}
@@ -87,7 +181,7 @@ export default function MultiCellDetection({ detection }: Props) {
 
             {/* Cell Selection Gallery */}
             <div className="space-y-3 pt-4 border-t border-[var(--color-border)]">
-                <p className="text-sm font-semibold">Select Cell for Analysis</p>
+                <p className="text-sm font-semibold">Select cell for preview and download</p>
                 <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
                     {cells.map((cell, idx) => (
                         <motion.button
@@ -105,8 +199,21 @@ export default function MultiCellDetection({ detection }: Props) {
                                 alt={`Cell ${idx + 1}`}
                                 className="w-full h-full object-cover"
                             />
+                            <div className="absolute top-1 left-1">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedForDownload.has(cell.cell_id)}
+                                    onChange={(event) => {
+                                        event.stopPropagation();
+                                        toggleSelectedCell(cell.cell_id);
+                                    }}
+                                    onClick={(event) => event.stopPropagation()}
+                                    className="h-4 w-4 accent-blue-500"
+                                    aria-label={`Select cell ${idx + 1} for download`}
+                                />
+                            </div>
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-xs font-bold">
-                                #{idx + 1}
+                                #{idx + 1}{cell.confidence ? ` • ${(cell.confidence * 100).toFixed(0)}%` : ""}
                             </div>
                         </motion.button>
                     ))}
@@ -155,6 +262,9 @@ export default function MultiCellDetection({ detection }: Props) {
                         <div className="p-3 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)]">
                             <p className="text-xs text-muted">Bounding Box Area</p>
                             <p className="text-lg font-bold">{selectedArea} px²</p>
+                            {typeof selected.confidence === "number" && (
+                                <p className="text-xs text-muted mt-1">Detection confidence: {(selected.confidence * 100).toFixed(1)}%</p>
+                            )}
                         </div>
 
                         {/* Cell Crop */}

@@ -2,10 +2,12 @@
 
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import JSZip from "jszip";
 import {
     assessQuality,
     normalizStain,
     detectMultipleCells,
+    generatePdfReportBlob,
     type QualityAssessment,
     type MultiCellDetectionResult,
 } from "@/lib/api";
@@ -30,6 +32,9 @@ export default function AdvancedToolsPanel() {
         };
     } | null>(null);
     const [multiCellResult, setMultiCellResult] = useState<MultiCellDetectionResult | null>(null);
+    const [multiCellSource, setMultiCellSource] = useState<File | null>(null);
+    const [multiCellSourceBase64, setMultiCellSourceBase64] = useState<string | null>(null);
+    const [multiCellReportLoading, setMultiCellReportLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [stainSource, setStainSource] = useState<File | null>(null);
     const [stainStatus, setStainStatus] = useState<{
@@ -94,6 +99,45 @@ export default function AdvancedToolsPanel() {
         document.body.removeChild(link);
     };
 
+    const downloadBlob = (filename: string, blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const base64ToUint8Array = (base64: string) => {
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes;
+    };
+
+    const downloadImagesAsZip = async (
+        zipFilename: string,
+        items: Array<{ filename: string; base64: string }>,
+        extraJson?: Record<string, unknown>
+    ) => {
+        const zip = new JSZip();
+
+        items.forEach((item) => {
+            zip.file(item.filename, base64ToUint8Array(item.base64));
+        });
+
+        if (extraJson) {
+            zip.file("metadata.json", JSON.stringify(extraJson, null, 2));
+        }
+
+        const blob = await zip.generateAsync({ type: "blob" });
+        downloadBlob(zipFilename, blob);
+    };
+
 
     const handleFileSelect = async (file: File, tool: ToolType) => {
         if (tool === "stain") {
@@ -108,6 +152,9 @@ export default function AdvancedToolsPanel() {
                 const result = await assessQuality(file);
                 setQualityResult(result);
             } else if (tool === "multicell") {
+                setMultiCellSource(file);
+                const originalBase64 = await readFileAsBase64(file);
+                setMultiCellSourceBase64(originalBase64);
                 const result = await detectMultipleCells(file);
                 setMultiCellResult(result);
             }
@@ -116,6 +163,120 @@ export default function AdvancedToolsPanel() {
             alert("Failed to process image. Please try again.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDownloadSelectedCells = (selectedIndexes: number[]) => {
+        if (!multiCellResult || selectedIndexes.length === 0) {
+            alert("Please select at least one cell image to download.");
+            return;
+        }
+
+        const items = selectedIndexes
+            .map((idx) => ({ idx, cell: multiCellResult.cells[idx] }))
+            .filter(({ cell }) => !!cell?.cell_image_base64)
+            .map(({ idx, cell }) => ({
+                filename: `multi_cell_${idx + 1}_${cell.cell_id}.png`,
+                base64: cell.cell_image_base64,
+            }));
+
+        if (items.length === 0) {
+            alert("No valid cell images found for the selected items.");
+            return;
+        }
+
+        const zipName = `selected_cells_${new Date().toISOString().replace(/[:.]/g, "-")}.zip`;
+        void downloadImagesAsZip(zipName, items, {
+            source_filename: multiCellSource?.name,
+            total_selected: items.length,
+            selected_indexes: selectedIndexes,
+            generated_at: new Date().toISOString(),
+        });
+    };
+
+    const handleDownloadAllImages = () => {
+        if (!multiCellResult) return;
+
+        const items: Array<{ filename: string; base64: string }> = [];
+
+        if (multiCellSourceBase64) {
+            items.push({ filename: "multi_cell_original.png", base64: multiCellSourceBase64 });
+        }
+        if (multiCellResult.image_with_boxes_base64) {
+            items.push({ filename: "multi_cell_overlap.png", base64: multiCellResult.image_with_boxes_base64 });
+        }
+
+        multiCellResult.cells.forEach((cell, idx) => {
+            if (!cell.cell_image_base64) return;
+            items.push({
+                filename: `multi_cell_${idx + 1}_${cell.cell_id}.png`,
+                base64: cell.cell_image_base64,
+            });
+        });
+
+        if (items.length === 0) {
+            alert("No images available to download.");
+            return;
+        }
+
+        const zipName = `multi_cell_all_images_${new Date().toISOString().replace(/[:.]/g, "-")}.zip`;
+        void downloadImagesAsZip(zipName, items, {
+            source_filename: multiCellSource?.name,
+            total_cells: multiCellResult.total_cells,
+            has_overlap: !!multiCellResult.image_with_boxes_base64,
+            generated_at: new Date().toISOString(),
+        });
+    };
+
+    const handleDownloadOverlapImage = () => {
+        if (!multiCellResult?.image_with_boxes_base64) {
+            alert("Overlap image is not available.");
+            return;
+        }
+        downloadBase64Image("multi_cell_overlap.png", multiCellResult.image_with_boxes_base64);
+    };
+
+    const handleDownloadMultiCellPdfReport = async () => {
+        if (!multiCellResult || !multiCellSource) {
+            alert("Run multi-cell detection first to generate a PDF report.");
+            return;
+        }
+
+        setMultiCellReportLoading(true);
+        try {
+            const analysisPayload: Record<string, unknown> = {
+                patient_name: "Anonymous",
+                analysis_date: new Date().toISOString().split("T")[0],
+                predicted_class: "Standalone multi-cell detection",
+                probabilities: {},
+                original_image_base64: multiCellSourceBase64 ?? undefined,
+                multi_cell: {
+                    total_cells: multiCellResult.total_cells,
+                    image_with_boxes_base64: multiCellResult.image_with_boxes_base64,
+                    cells: multiCellResult.cells,
+                },
+                report_context: {
+                    report_type: "multi_cell_detection",
+                    source_filename: multiCellSource.name,
+                    generated_at: new Date().toISOString(),
+                },
+                quality_assessment: qualityResult ?? undefined,
+            };
+
+            const { blob, filename } = await generatePdfReportBlob(analysisPayload, multiCellSource);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename || "multi_cell_detection_report.pdf";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to download multi-cell PDF report:", error);
+            alert("Failed to generate PDF report. Please try again.");
+        } finally {
+            setMultiCellReportLoading(false);
         }
     };
 
@@ -299,7 +460,14 @@ export default function AdvancedToolsPanel() {
 
             {multiCellResult && activeTool === "multicell" && (
                 <div className="space-y-3">
-                    <MultiCellDetection detection={multiCellResult} />
+                    <MultiCellDetection
+                        detection={multiCellResult}
+                        onDownloadSelected={handleDownloadSelectedCells}
+                        onDownloadAll={handleDownloadAllImages}
+                        onDownloadOverlap={handleDownloadOverlapImage}
+                        onDownloadReportPdf={handleDownloadMultiCellPdfReport}
+                        reportLoading={multiCellReportLoading}
+                    />
                     <div className="flex flex-wrap gap-3">
                         <button
                             type="button"
@@ -308,15 +476,6 @@ export default function AdvancedToolsPanel() {
                         >
                             Download Detection Report
                         </button>
-                        {multiCellResult.image_with_boxes_base64 && (
-                            <button
-                                type="button"
-                                onClick={() => downloadBase64Image("multi_cell_boxes.png", multiCellResult.image_with_boxes_base64!)}
-                                className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-bg-alt)]"
-                            >
-                                Download Overlay Image
-                            </button>
-                        )}
                     </div>
                 </div>
             )}

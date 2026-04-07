@@ -36,6 +36,7 @@ export type SegmentationMetrics = {
 export type DetectedCell = {
     cell_id: string;
     bounding_box: { x: number; y: number; width: number; height: number };
+    confidence?: number;
     cell_image_base64: string;
 };
 
@@ -144,6 +145,11 @@ export type HistoricalPrediction = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export type GeneratedPdfResult = {
+    blob: Blob;
+    filename: string;
+};
 
 export async function classify(file: File): Promise<PredictResponse> {
     console.log("[Frontend API] Starting classification request...");
@@ -308,6 +314,24 @@ export async function exportPDF(report: AnalysisReport): Promise<Blob> {
     if (!res.ok) throw new Error(`PDF export failed: ${res.status}`);
 
     return res.blob();
+}
+
+export async function generatePdfReportBlob(analysis: Record<string, unknown>, imageFile: File): Promise<GeneratedPdfResult> {
+    console.log("[Frontend API] Generating PDF report blob...");
+
+    const form = new FormData();
+    form.append("file", imageFile);
+    form.append("analysis", JSON.stringify(analysis));
+
+    const res = await fetch(`${API_URL}/api/v1/generate-report`, { method: "POST", body: form });
+    if (!res.ok) throw new Error(`PDF report generation failed: ${res.status}`);
+
+    const blob = await res.blob();
+    const contentDisposition = res.headers.get("content-disposition") || "";
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
+    const filename = match?.[1]?.replace(/['"]/g, "") || "herhealth_analysis_report.pdf";
+
+    return { blob, filename };
 }
 
 export async function getClasses(): Promise<string[]> {
