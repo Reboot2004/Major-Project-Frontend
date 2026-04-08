@@ -138,34 +138,6 @@ export default function AdvancedToolsPanel() {
         downloadBlob(zipFilename, blob);
     };
 
-
-    const handleFileSelect = async (file: File, tool: ToolType) => {
-        if (tool === "stain") {
-            setStainSource(file);
-            await runStainNormalization(file);
-            return;
-        }
-
-        setLoading(true);
-        try {
-            if (tool === "quality") {
-                const result = await assessQuality(file);
-                setQualityResult(result);
-            } else if (tool === "multicell") {
-                setMultiCellSource(file);
-                const originalBase64 = await readFileAsBase64(file);
-                setMultiCellSourceBase64(originalBase64);
-                const result = await detectMultipleCells(file);
-                setMultiCellResult(result);
-            }
-        } catch (error) {
-            console.error("Tool execution failed:", error);
-            alert("Failed to process image. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleDownloadSelectedCells = (selectedIndexes: number[]) => {
         if (!multiCellResult || selectedIndexes.length === 0) {
             alert("Please select at least one cell image to download.");
@@ -195,7 +167,9 @@ export default function AdvancedToolsPanel() {
     };
 
     const handleDownloadAllImages = () => {
-        if (!multiCellResult) return;
+        if (!multiCellResult) {
+            return;
+        }
 
         const items: Array<{ filename: string; base64: string }> = [];
 
@@ -207,7 +181,9 @@ export default function AdvancedToolsPanel() {
         }
 
         multiCellResult.cells.forEach((cell, idx) => {
-            if (!cell.cell_image_base64) return;
+            if (!cell.cell_image_base64) {
+                return;
+            }
             items.push({
                 filename: `multi_cell_${idx + 1}_${cell.cell_id}.png`,
                 base64: cell.cell_image_base64,
@@ -264,19 +240,41 @@ export default function AdvancedToolsPanel() {
             };
 
             const { blob, filename } = await generatePdfReportBlob(analysisPayload, multiCellSource);
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = filename || "multi_cell_detection_report.pdf";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            downloadBlob(filename || "multi_cell_detection_report.pdf", blob);
         } catch (error) {
             console.error("Failed to download multi-cell PDF report:", error);
             alert("Failed to generate PDF report. Please try again.");
         } finally {
             setMultiCellReportLoading(false);
+        }
+    };
+
+
+    const handleFileSelect = async (file: File, tool: ToolType) => {
+        if (tool === "stain") {
+            setStainSource(file);
+            await runStainNormalization(file);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            if (tool === "quality") {
+                const result = await assessQuality(file);
+                setQualityResult(result);
+            } else if (tool === "multicell") {
+                setMultiCellSource(file);
+                const originalBase64 = await readFileAsBase64(file);
+                setMultiCellSourceBase64(originalBase64);
+                const result = await detectMultipleCells(file);
+                setMultiCellResult(result);
+            }
+        } catch (error) {
+            console.error("Tool execution failed:", error);
+            const message = error instanceof Error ? error.message : "Failed to process image. Please try again.";
+            alert(message);
+        } finally {
+            setLoading(false);
         }
     };
 

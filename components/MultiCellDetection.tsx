@@ -53,7 +53,6 @@ export default function MultiCellDetection({
         ? selected.bounding_box.width * selected.bounding_box.height
         : 0;
 
-    const selectedDownloadCount = selectedForDownload.size;
     const selectedIndexes = cells
         .map((cell, idx) => ({ cell, idx }))
         .filter(({ cell }) => selectedForDownload.has(cell.cell_id))
@@ -83,7 +82,7 @@ export default function MultiCellDetection({
             <div className="flex items-start justify-between">
                 <div>
                     <h3 className="text-xl font-bold">Multi-Cell Detection Studio</h3>
-                    <p className="text-sm text-muted mt-1">Review detected cells and download exactly what you need</p>
+                    <p className="text-sm text-muted mt-1">Select specific cells and download exactly what you need</p>
                 </div>
                 <div className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
                     <p className="text-sm font-bold text-blue-400">{totalCells} cells</p>
@@ -91,9 +90,9 @@ export default function MultiCellDetection({
             </div>
 
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-3">
-                <div className="flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-semibold">
-                        Selected for download: <span className="text-[var(--color-accent)]">{selectedDownloadCount}</span>
+                        Selected for download: <span className="text-[var(--color-accent)]">{selectedForDownload.size}</span>
                     </p>
                     <div className="flex flex-wrap gap-2">
                         <button
@@ -169,7 +168,7 @@ export default function MultiCellDetection({
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-muted uppercase">Detected Regions</p>
-                        <p className="text-[11px] text-muted">Overlap view with all bounding boxes</p>
+                        <p className="text-[11px] text-muted">Overlap view with all detected boxes</p>
                     </div>
                     <img
                         src={`data:image/png;base64,${detection.image_with_boxes_base64}`}
@@ -181,7 +180,7 @@ export default function MultiCellDetection({
 
             {/* Cell Selection Gallery */}
             <div className="space-y-3 pt-4 border-t border-[var(--color-border)]">
-                <p className="text-sm font-semibold">Select cell for preview and download</p>
+                <p className="text-sm font-semibold">Select cell for preview and downloads</p>
                 <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
                     {cells.map((cell, idx) => (
                         <motion.button
@@ -213,7 +212,7 @@ export default function MultiCellDetection({
                                 />
                             </div>
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-xs font-bold">
-                                #{idx + 1}{cell.confidence ? ` • ${(cell.confidence * 100).toFixed(0)}%` : ""}
+                                #{idx + 1}{typeof cell.confidence === "number" ? ` • ${(cell.confidence * 100).toFixed(0)}%` : ""}
                             </div>
                         </motion.button>
                     ))}

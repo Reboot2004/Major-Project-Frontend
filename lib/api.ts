@@ -263,7 +263,18 @@ export async function detectMultipleCells(file: File): Promise<MultiCellDetectio
     form.append("file", file);
 
     const res = await fetch(`${API_URL}/api/v1/multi-cell-detect`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`Multi-cell detection failed: ${res.status}`);
+    if (!res.ok) {
+        let detail = `HTTP ${res.status}`;
+        try {
+            const payload = await res.json();
+            if (payload?.detail) {
+                detail = `${detail} - ${payload.detail}`;
+            }
+        } catch {
+            // Keep status-only detail when response body is not JSON.
+        }
+        throw new Error(`Multi-cell detection failed: ${detail}`);
+    }
     const data = await res.json();
     return (data as any).multi_cell ?? data;
 }
@@ -303,19 +314,6 @@ export async function generateReport(analysis: PredictResponse, imageFile: File,
     return res.json();
 }
 
-export async function exportPDF(report: AnalysisReport): Promise<Blob> {
-    console.log("[Frontend API] Exporting report as PDF...");
-
-    const res = await fetch(`${API_URL}/api/v1/export-pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(report)
-    });
-    if (!res.ok) throw new Error(`PDF export failed: ${res.status}`);
-
-    return res.blob();
-}
-
 export async function generatePdfReportBlob(analysis: Record<string, unknown>, imageFile: File): Promise<GeneratedPdfResult> {
     console.log("[Frontend API] Generating PDF report blob...");
 
@@ -329,9 +327,22 @@ export async function generatePdfReportBlob(analysis: Record<string, unknown>, i
     const blob = await res.blob();
     const contentDisposition = res.headers.get("content-disposition") || "";
     const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
-    const filename = match?.[1]?.replace(/['"]/g, "") || "herhealth_analysis_report.pdf";
+    const filename = match?.[1]?.replace(/["']/g, "") || "herhealth_analysis_report.pdf";
 
     return { blob, filename };
+}
+
+export async function exportPDF(report: AnalysisReport): Promise<Blob> {
+    console.log("[Frontend API] Exporting report as PDF...");
+
+    const res = await fetch(`${API_URL}/api/v1/export-pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(report)
+    });
+    if (!res.ok) throw new Error(`PDF export failed: ${res.status}`);
+
+    return res.blob();
 }
 
 export async function getClasses(): Promise<string[]> {
