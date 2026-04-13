@@ -73,17 +73,17 @@ export default function HomePage() {
         {
             title: "Upload and process a sample",
             desc: "Open the Demo, upload a cervical cell slide (or use a sample image), and let the system run preprocessing plus analysis.",
-            gif: "/images/Upload.gif"
+            video: "/vids/upload.mp4"
         },
         {
             title: "Review AI predictions",
             desc: "See model outputs in one place – cell type classification, U-Net segmentation masks, and XAI heatmaps.",
-            gif: "/images/Prediction.gif"
+            video: "/vids/review-ai.mp4"
         },
         {
             title: "Export a detailed report",
             desc: "Generate and download a structured PDF report summarizing findings, uncertainty metrics, and clinical decision support.",
-            gif: "/images/Report.gif"
+            video: "/vids/export-detailed-review.mp4"
         }
     ];
 
@@ -207,10 +207,15 @@ export default function HomePage() {
                             className="card border border-[var(--color-border)] bg-[var(--color-bg-alt)]/60 overflow-hidden flex flex-col md:flex-row md:items-stretch"
                         >
                             <div className="relative overflow-hidden md:w-1/2">
-                                <img
-                                    src={step.gif}
-                                    alt={step.title}
+                                <video
+                                    src={step.video}
                                     className="w-full h-52 md:h-full object-cover"
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    preload="metadata"
+                                    aria-label={step.title}
                                 />
                             </div>
                             <div className="flex-1 px-4 py-4 flex gap-4 items-start">
