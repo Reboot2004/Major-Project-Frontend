@@ -111,41 +111,6 @@ export default function MultiCellDetection({
                         </button>
                     </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                    <button
-                        type="button"
-                        onClick={() => onDownloadSelected?.(selectedIndexes)}
-                        disabled={!onDownloadSelected || selectedIndexes.length === 0}
-                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Download selected images (ZIP)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onDownloadOverlap}
-                        disabled={!onDownloadOverlap || !detection.image_with_boxes_base64}
-                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Download overlap image
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onDownloadAll}
-                        disabled={!onDownloadAll}
-                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Download all images (ZIP)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onDownloadReportPdf}
-                        disabled={!onDownloadReportPdf || reportLoading}
-                        className="px-3 py-2 rounded-md bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {reportLoading ? "Generating PDF..." : "Download PDF report"}
-                    </button>
-                </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 text-center">
@@ -181,7 +146,7 @@ export default function MultiCellDetection({
             {/* Cell Selection Gallery */}
             <div className="space-y-3 pt-4 border-t border-[var(--color-border)]">
                 <p className="text-sm font-semibold">Select cell for preview and downloads</p>
-                <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-72 overflow-y-auto pr-1">
                     {cells.map((cell, idx) => (
                         <motion.button
                             key={cell.cell_id}
@@ -278,6 +243,44 @@ export default function MultiCellDetection({
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 space-y-3">
+                <p className="text-sm font-semibold">Downloads</p>
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={() => onDownloadSelected?.(selectedIndexes)}
+                        disabled={!onDownloadSelected || selectedIndexes.length === 0}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download selected images (ZIP)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadOverlap}
+                        disabled={!onDownloadOverlap || !detection.image_with_boxes_base64}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download overlap image
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadAll}
+                        disabled={!onDownloadAll}
+                        className="px-3 py-2 rounded-md border border-[var(--color-border)] text-xs font-semibold hover:bg-[var(--color-bg-alt)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Download all images (ZIP)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onDownloadReportPdf}
+                        disabled={!onDownloadReportPdf || reportLoading}
+                        className="px-3 py-2 rounded-md bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {reportLoading ? "Generating PDF..." : "Download PDF report"}
+                    </button>
+                </div>
+            </div>
         </motion.div>
     );
 }

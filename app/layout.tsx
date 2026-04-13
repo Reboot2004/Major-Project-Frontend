@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             className="text-xl font-bold tracking-tight hover:opacity-80 transition-opacity flex items-center gap-3"
                         >
                             <img
-                                src="/images/her_health_logo.svg"
+                                src="/images/HerHealth.ai%20logo%20with%20DNA%20and%20AI.png"
                                 alt="HerHealth.AI logo"
                                 className="h-8 w-auto"
                             />

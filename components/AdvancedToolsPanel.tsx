@@ -239,8 +239,8 @@ export default function AdvancedToolsPanel() {
                 quality_assessment: qualityResult ?? undefined,
             };
 
-            const { blob, filename } = await generatePdfReportBlob(analysisPayload, multiCellSource);
-            downloadBlob(filename || "multi_cell_detection_report.pdf", blob);
+            const { blob } = await generatePdfReportBlob(analysisPayload, multiCellSource);
+            downloadBlob("multi_cell_report.pdf", blob);
         } catch (error) {
             console.error("Failed to download multi-cell PDF report:", error);
             alert("Failed to generate PDF report. Please try again.");
@@ -466,15 +466,6 @@ export default function AdvancedToolsPanel() {
                         onDownloadReportPdf={handleDownloadMultiCellPdfReport}
                         reportLoading={multiCellReportLoading}
                     />
-                    <div className="flex flex-wrap gap-3">
-                        <button
-                            type="button"
-                            onClick={() => downloadJson("multi_cell_results.json", multiCellResult)}
-                            className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm font-semibold hover:bg-[var(--color-bg-alt)]"
-                        >
-                            Download Detection Report
-                        </button>
-                    </div>
                 </div>
             )}
         </div>
