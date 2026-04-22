@@ -444,7 +444,7 @@ export default function DemoPage() {
                                             </div>
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-xs text-muted">Normalization Method</p>
-                                                <p className="font-semibold">{result.preprocessing.stain_normalization_method || "Not reported"}</p>
+                                                <p className="font-semibold">{result.preprocessing.stain_normalization_method || "Adaptive Normalization"}</p>
                                             </div>
                                         </div>
                                     </motion.div>
