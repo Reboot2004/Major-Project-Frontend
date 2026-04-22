@@ -394,7 +394,7 @@ export default function DemoPage() {
                                 >
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <p className="text-sm font-semibold">Summary</p>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full md:w-auto">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full md:w-auto">
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-[11px] text-muted">Class</p>
                                                 <p className="text-sm font-semibold">{result.predicted_class}</p>
@@ -402,10 +402,6 @@ export default function DemoPage() {
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-[11px] text-muted">Risk</p>
                                                 <p className="text-sm font-semibold">{result.clinical_decision?.risk_level ?? "N/A"}</p>
-                                            </div>
-                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
-                                                <p className="text-[11px] text-muted">Cells</p>
-                                                <p className="text-sm font-semibold">{result.preprocessing?.cells_detected ?? "N/A"}</p>
                                             </div>
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-[11px] text-muted">Time</p>
@@ -439,16 +435,12 @@ export default function DemoPage() {
                                         className="card space-y-3"
                                     >
                                         <h3 className="text-sm font-semibold">Preprocessing Summary</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-xs text-muted">Quality Score</p>
                                                 <p className="font-semibold">
                                                     {normalizeQualityPercent(result.preprocessing.quality_score)?.toFixed(1) ?? "N/A"}%
                                                 </p>
-                                            </div>
-                                            <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
-                                                <p className="text-xs text-muted">Cells Detected</p>
-                                                <p className="font-semibold">{result.preprocessing.cells_detected ?? "N/A"}</p>
                                             </div>
                                             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/70 px-3 py-2">
                                                 <p className="text-xs text-muted">Normalization Method</p>
