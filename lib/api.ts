@@ -146,6 +146,17 @@ export type HistoricalPrediction = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+async function readErrorDetail(res: Response): Promise<string | undefined> {
+    try {
+        const payload = await res.json();
+        if (typeof (payload as any)?.detail === "string") return (payload as any).detail;
+        if (typeof (payload as any)?.error === "string") return (payload as any).error;
+        return undefined;
+    } catch {
+        return undefined;
+    }
+}
+
 export type GeneratedPdfResult = {
     blob: Blob;
     filename: string;
@@ -162,7 +173,11 @@ export async function classify(file: File): Promise<PredictResponse> {
     const res = await fetch(`${API_URL}/api/v1/classification/predict`, { method: "POST", body: form });
     console.log("[Frontend API] Response status:", res.status, res.statusText);
 
-    if (!res.ok) throw new Error(`Classification failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Classification failed: ${detail ? detail : res.status}`);
+    }
 
     const data = await res.json();
     console.log("[Frontend API] Classification response:", data);
@@ -184,7 +199,11 @@ export async function segment(file: File): Promise<PredictResponse> {
     const res = await fetch(`${API_URL}/api/v1/segmentation/predict`, { method: "POST", body: form });
     console.log("[Frontend API] Response status:", res.status, res.statusText);
 
-    if (!res.ok) throw new Error(`Segmentation failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Segmentation failed: ${detail ? detail : res.status}`);
+    }
 
     const data = await res.json();
     console.log("[Frontend API] Segmentation response:", data);
@@ -217,7 +236,11 @@ export async function classifyAndSegment(file: File, patient?: { id?: string; na
 
     const res = await fetch(`${API_URL}/api/v1/segmentation/predict`, { method: "POST", body: form });
     console.log("[Frontend API] Response status (classifyAndSegment):", res.status, res.statusText);
-    if (!res.ok) throw new Error(`Segmentation failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Segmentation failed: ${detail ? detail : res.status}`);
+    }
 
     const data = await res.json();
     console.log("[Frontend API] classifyAndSegment response:", data);
@@ -231,7 +254,11 @@ export async function assessQuality(file: File): Promise<QualityAssessment> {
     form.append("file", file);
 
     const res = await fetch(`${API_URL}/api/v1/quality-assessment`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`Quality assessment failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Quality assessment failed: ${detail ? detail : res.status}`);
+    }
     const data = await res.json();
     return (data as any).quality ?? data;
 }
@@ -251,7 +278,11 @@ export async function normalizStain(file: File): Promise<{
     form.append("file", file);
 
     const res = await fetch(`${API_URL}/api/v1/stain-normalization`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`Stain normalization failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Stain normalization failed: ${detail ? detail : res.status}`);
+    }
 
     return res.json();
 }
@@ -286,7 +317,11 @@ export async function submitBatch(files: File[]): Promise<BatchJob> {
     files.forEach(file => form.append("files", file));
 
     const res = await fetch(`${API_URL}/api/v1/batch-process`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`Batch processing failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Batch processing failed: ${detail ? detail : res.status}`);
+    }
 
     return res.json();
 }
@@ -309,7 +344,11 @@ export async function generateReport(analysis: PredictResponse, imageFile: File,
     form.append("analysis", JSON.stringify(payload));
 
     const res = await fetch(`${API_URL}/api/v1/generate-report`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`Report generation failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`Report generation failed: ${detail ? detail : res.status}`);
+    }
 
     return res.json();
 }
@@ -322,7 +361,11 @@ export async function generatePdfReportBlob(analysis: Record<string, unknown>, i
     form.append("analysis", JSON.stringify(analysis));
 
     const res = await fetch(`${API_URL}/api/v1/generate-report`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`PDF report generation failed: ${res.status}`);
+    if (!res.ok) {
+        const detail = await readErrorDetail(res);
+        if (res.status === 415 && detail) throw new Error(detail);
+        throw new Error(`PDF report generation failed: ${detail ? detail : res.status}`);
+    }
 
     const blob = await res.blob();
     const contentDisposition = res.headers.get("content-disposition") || "";

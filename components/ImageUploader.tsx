@@ -30,6 +30,25 @@ export default function ImageUploader({ onResult, patientId, patientName }: Prop
     };
 
     const onSelect = async (file: File) => {
+        const name = (file?.name || "").toLowerCase();
+        const extOk = (ext: string) => name.endsWith(ext);
+        const isProbablyImage =
+            (file?.type && file.type.startsWith("image/")) ||
+            extOk(".png") ||
+            extOk(".jpg") ||
+            extOk(".jpeg") ||
+            extOk(".tif") ||
+            extOk(".tiff") ||
+            extOk(".bmp") ||
+            extOk(".webp");
+
+        if (!isProbablyImage) {
+            const msg = "Invalid File Type";
+            setError(msg);
+            push({ message: msg, type: "error" });
+            return;
+        }
+
         setError(null);
         setLoading(true);
         setProgress(0);
