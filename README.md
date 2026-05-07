@@ -55,7 +55,7 @@ Dark mode is toggled using a root `data-theme="dark"` attribute (`ThemeToggle` c
 - Toast notifications use `aria-live="polite"`
 
 ### Interaction Enhancements
-- Heatmap opacity slider (`HeatmapOverlay`)
+- Heatmap opacity slider(`HeatmapOverlay`)
 - Segmentation blended canvas with adjustable mask alpha (`SegmentationBlend`)
 - Toast notifications (`ToastStore`) for success/error states
 - Mock API fallback for offline development
