@@ -70,10 +70,5 @@ Dark mode is toggled using a root `data-theme="dark"` attribute (`ThemeToggle` c
 - Accessibility: Ensure focus traversal includes ThemeToggle and sliders
 - Interactivity: Opacity slider updates image style, segmentation alpha updates canvas layering
 
-## Next Steps
-- Add comparison metrics table to `/models`
-- Integrate real segmentation mask color legend
-- Add toggle between Score-CAM and Layer-CAM when backend supports multiple heatmaps
-
 ## License
 See root project license (MIT) for usage terms.
