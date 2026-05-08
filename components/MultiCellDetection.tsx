@@ -30,7 +30,7 @@ export default function MultiCellDetection({
     useEffect(() => {
         setSelectedCell(0);
         setSelectedForDownload(new Set(cells.map((cell) => cell.cell_id)));
-    }, [totalCells, cells.length]);
+    }, [detection]);
 
     if (!detection || totalCells === 0 || cells.length === 0) {
         return (
@@ -145,12 +145,15 @@ export default function MultiCellDetection({
 
             {/* Cell Selection Gallery */}
             <div className="space-y-3 pt-4 border-t border-[var(--color-border)]">
-                <p className="text-sm font-semibold">Select cell for preview and downloads</p>
+                <p className="text-sm font-semibold">Click a cell to select or deselect it</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-72 overflow-y-auto pr-1">
                     {cells.map((cell, idx) => (
                         <motion.button
                             key={cell.cell_id}
-                            onClick={() => setSelectedCell(idx)}
+                            onClick={() => {
+                                setSelectedCell(idx);
+                                toggleSelectedCell(cell.cell_id);
+                            }}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all ${selectedCell === idx
@@ -176,6 +179,11 @@ export default function MultiCellDetection({
                                     aria-label={`Select cell ${idx + 1} for download`}
                                 />
                             </div>
+                            {selectedForDownload.has(cell.cell_id) && (
+                                <div className="absolute top-1 right-1 px-2 py-0.5 rounded-full bg-blue-500/90 text-[10px] font-bold text-white shadow">
+                                    Selected
+                                </div>
+                            )}
                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-xs font-bold">
                                 #{idx + 1}{typeof cell.confidence === "number" ? ` • ${(cell.confidence * 100).toFixed(0)}%` : ""}
                             </div>
@@ -198,7 +206,7 @@ export default function MultiCellDetection({
                             <h4 className="font-semibold">Cell #{selectedCell + 1} Details</h4>
                             <div className="px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30">
                                 <p className="text-xs font-semibold text-blue-400">
-                                    ID: {selected.cell_id}
+                                    {selectedForDownload.has(selected.cell_id) ? "Selected" : "Deselected"}
                                 </p>
                             </div>
                         </div>
